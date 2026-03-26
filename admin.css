@@ -17,8 +17,21 @@ body{font-family:var(--fb);background:var(--black);color:var(--white);min-height
 .admin-wrap{display:none}
 .admin-header{background:var(--card);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .admin-header h1{font-family:var(--fd);font-size:1.1rem;color:var(--gold)}
-.admin-header .logout{padding:8px 20px;background:none;border:1px solid var(--border);color:var(--muted);font-family:var(--fb);font-size:.75rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .3s}
+.admin-header-actions{display:flex;align-items:center;gap:12px}
+.btn-preview{padding:8px 20px;background:none;border:1px solid var(--gold);color:var(--gold);font-family:var(--fb);font-size:.75rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:all .3s;min-height:44px;display:flex;align-items:center}
+.btn-preview:hover{background:var(--gold);color:var(--black)}
+.admin-header .logout{padding:8px 20px;background:none;border:1px solid var(--border);color:var(--muted);font-family:var(--fb);font-size:.75rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .3s;min-height:44px}
 .admin-header .logout:hover{border-color:var(--danger);color:var(--danger)}
+/* CONFIRM DIALOG */
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9998;display:flex;align-items:center;justify-content:center;padding:24px}
+.confirm-box{background:var(--card);border:1px solid var(--border);padding:32px;max-width:400px;width:100%;text-align:center}
+.confirm-box p{font-size:.95rem;color:var(--light);margin-bottom:24px}
+.confirm-actions{display:flex;gap:12px;justify-content:center}
+.confirm-actions button{padding:12px 28px;font-family:var(--fb);font-size:.8rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:none;min-height:44px;transition:all .3s}
+.confirm-yes{background:var(--danger);color:var(--white)}
+.confirm-yes:hover{opacity:.85}
+.confirm-no{background:none;border:1px solid var(--border)!important;color:var(--muted)}
+.confirm-no:hover{border-color:var(--gold)!important;color:var(--gold)}
 
 /* TABS */
 .tabs{display:flex;gap:0;background:var(--dark);border-bottom:1px solid var(--border)}

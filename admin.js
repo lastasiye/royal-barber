@@ -23,6 +23,18 @@ function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
 }
 
+function confirmAction(msg) {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'confirm-overlay';
+    overlay.innerHTML = '<div class="confirm-box"><p>' + msg + '</p><div class="confirm-actions"><button class="confirm-yes">Ja, löschen</button><button class="confirm-no">Abbrechen</button></div></div>';
+    document.body.appendChild(overlay);
+    overlay.querySelector('.confirm-yes').addEventListener('click', () => { overlay.remove(); resolve(true); });
+    overlay.querySelector('.confirm-no').addEventListener('click', () => { overlay.remove(); resolve(false); });
+    overlay.addEventListener('click', e => { if (e.target === overlay) { overlay.remove(); resolve(false); } });
+  });
+}
+
 function showToast(msg) {
   const t = document.getElementById('adminToast');
   t.textContent = msg || 'Gespeichert!';
@@ -133,10 +145,12 @@ function renderGallery() {
     div.draggable = true;
     div.dataset.idx = idx;
     div.innerHTML = '<img src="' + item.src + '" alt="' + (item.alt || '') + '"><button class="del-btn" title="Löschen">&times;</button>';
-    div.querySelector('.del-btn').addEventListener('click', () => {
+    div.querySelector('.del-btn').addEventListener('click', async () => {
+      if (!await confirmAction('Dieses Foto wirklich löschen?')) return;
       DATA.gallery.splice(idx, 1);
       saveData();
       renderGallery();
+      showToast('Foto gelöscht!');
     });
     // drag & drop reorder
     div.addEventListener('dragstart', e => {
@@ -185,7 +199,8 @@ function renderServices() {
       if (e.target.checked) DATA.services[idx].popular = true;
       renderServices();
     });
-    tr.querySelector('.del-row').addEventListener('click', () => {
+    tr.querySelector('.del-row').addEventListener('click', async () => {
+      if (!await confirmAction('Diese Dienstleistung wirklich löschen?')) return;
       DATA.services.splice(idx, 1);
       renderServices();
     });
@@ -213,7 +228,8 @@ function renderProducts() {
         DATA.products[idx][field] = field === 'price' ? parseFloat(input.value) : input.value;
       });
     });
-    tr.querySelector('.del-row').addEventListener('click', () => {
+    tr.querySelector('.del-row').addEventListener('click', async () => {
+      if (!await confirmAction('Dieses Produkt wirklich löschen?')) return;
       DATA.products.splice(idx, 1);
       renderProducts();
     });
