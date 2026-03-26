@@ -1,7 +1,9 @@
 /* ═══ ADMIN PANEL ═══ */
 const STORAGE_KEY = 'royar_data';
 const AUTH_KEY = 'royar_auth';
-const CREDENTIALS = { user: 'admin', pass: 'royar2026' };
+const PW_KEY = 'royar_pw';
+const DEFAULT_PW = 'royar2026';
+function getPassword() { return localStorage.getItem(PW_KEY) || DEFAULT_PW; }
 
 let DATA = {};
 
@@ -39,7 +41,7 @@ document.getElementById('loginPass').addEventListener('keydown', e => { if (e.ke
 function doLogin() {
   const u = document.getElementById('loginUser').value.trim();
   const p = document.getElementById('loginPass').value;
-  if (u === CREDENTIALS.user && p === CREDENTIALS.pass) {
+  if (u === 'admin' && p === getPassword()) {
     sessionStorage.setItem(AUTH_KEY, 'true');
     showAdmin();
   } else {
@@ -287,4 +289,40 @@ document.getElementById('saveContact').addEventListener('click', () => {
   };
   saveData();
   showToast('Kontaktdaten gespeichert!');
+});
+
+/* ═══ PASSWORD CHANGE ═══ */
+document.getElementById('savePassword').addEventListener('click', () => {
+  const errEl = document.getElementById('pwError');
+  const sucEl = document.getElementById('pwSuccess');
+  errEl.style.display = 'none';
+  sucEl.style.display = 'none';
+
+  const current = document.getElementById('pwCurrent').value;
+  const newPw = document.getElementById('pwNew').value;
+  const confirm = document.getElementById('pwConfirm').value;
+
+  if (current !== getPassword()) {
+    errEl.textContent = 'Aktuelles Passwort ist falsch.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (newPw.length < 6) {
+    errEl.textContent = 'Neues Passwort muss mindestens 6 Zeichen haben.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (newPw !== confirm) {
+    errEl.textContent = 'Passwörter stimmen nicht überein.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  localStorage.setItem(PW_KEY, newPw);
+  document.getElementById('pwCurrent').value = '';
+  document.getElementById('pwNew').value = '';
+  document.getElementById('pwConfirm').value = '';
+  sucEl.textContent = 'Passwort erfolgreich geändert!';
+  sucEl.style.display = 'block';
+  showToast('Passwort geändert!');
 });

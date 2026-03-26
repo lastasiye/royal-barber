@@ -38,6 +38,7 @@
 <button class="tab" data-panel="prices">Preisliste</button>
 <button class="tab" data-panel="hours">Öffnungszeiten</button>
 <button class="tab" data-panel="contact">Kontakt</button>
+<button class="tab" data-panel="settings">Einstellungen</button>
 </div>
 
 <!-- GALERIE -->
@@ -129,6 +130,26 @@
 <input type="url" id="cMaps" placeholder="https://maps.google.com/...">
 </div>
 <button class="btn-save" id="saveContact">Kontakt Speichern</button>
+</div>
+
+<!-- EINSTELLUNGEN -->
+<div class="panel" id="panel-settings">
+<h2>Passwort ändern</h2>
+<div class="form-group">
+<label>Aktuelles Passwort</label>
+<input type="password" id="pwCurrent" placeholder="Aktuelles Passwort">
+</div>
+<div class="form-group">
+<label>Neues Passwort</label>
+<input type="password" id="pwNew" placeholder="Mindestens 6 Zeichen">
+</div>
+<div class="form-group">
+<label>Neues Passwort bestätigen</label>
+<input type="password" id="pwConfirm" placeholder="Passwort wiederholen">
+</div>
+<div class="pw-error" id="pwError" style="display:none;color:#e74c3c;font-size:.8rem;margin-bottom:12px"></div>
+<div class="pw-success" id="pwSuccess" style="display:none;color:#27ae60;font-size:.8rem;margin-bottom:12px"></div>
+<button class="btn-save" id="savePassword">Passwort Ändern</button>
 </div>
 
 </div>
