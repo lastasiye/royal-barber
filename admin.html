@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Royar Barber Shop</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230A0A0A'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='Georgia,serif' font-size='20' font-weight='bold' fill='%23C9A84C'%3ER%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginWrap">
+<div class="login-box">
+<h1>Royar Barber Shop</h1>
+<p>Admin Panel</p>
+<div class="login-error" id="loginError">Falscher Benutzername oder Passwort</div>
+<input type="text" id="loginUser" placeholder="Benutzername" autocomplete="username">
+<input type="password" id="loginPass" placeholder="Passwort" autocomplete="current-password">
+<button class="btn" id="loginBtn">Anmelden</button>
+</div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="admin-wrap" id="adminWrap">
+
+<div class="admin-header">
+<h1>Admin Panel</h1>
+<button class="logout" id="logoutBtn">Abmelden</button>
+</div>
+
+<div class="tabs">
+<button class="tab active" data-panel="gallery">Galerie</button>
+<button class="tab" data-panel="prices">Preisliste</button>
+<button class="tab" data-panel="hours">Öffnungszeiten</button>
+<button class="tab" data-panel="contact">Kontakt</button>
+</div>
+
+<!-- GALERIE -->
+<div class="panel active" id="panel-gallery">
+<h2>Galerie verwalten</h2>
+<div class="upload-zone" id="uploadZone">
+<p>Fotos hierher ziehen oder <span>Dateien auswählen</span></p>
+<input type="file" id="fileInput" accept="image/*" multiple>
+</div>
+<div class="gal-admin-grid" id="galGrid"></div>
+<button class="btn-save" id="saveGallery">Galerie Speichern</button>
+</div>
+
+<!-- PREISLISTE -->
+<div class="panel" id="panel-prices">
+<h2>Dienstleistungen</h2>
+<table class="price-admin-table" id="servicesTable">
+<thead><tr><th>Name</th><th>Preis (CHF)</th><th>Beliebt</th><th></th></tr></thead>
+<tbody></tbody>
+</table>
+<button class="btn-add" id="addService">+ Dienstleistung hinzufügen</button>
+
+<hr class="section-divider">
+
+<h2>Produkte</h2>
+<table class="price-admin-table" id="productsTable">
+<thead><tr><th>Name</th><th>Preis (CHF)</th><th></th></tr></thead>
+<tbody></tbody>
+</table>
+<button class="btn-add" id="addProduct">+ Produkt hinzufügen</button>
+
+<button class="btn-save" id="savePrices">Preisliste Speichern</button>
+</div>
+
+<!-- ÖFFNUNGSZEITEN -->
+<div class="panel" id="panel-hours">
+<h2>Öffnungszeiten</h2>
+<div class="form-group">
+<label>Montag – Freitag</label>
+<div class="form-row">
+<input type="time" id="mfOpen" value="09:00">
+<input type="time" id="mfClose" value="19:00">
+</div>
+</div>
+<div class="form-group">
+<label>Samstag</label>
+<div class="form-row">
+<input type="time" id="satOpen" value="09:00">
+<input type="time" id="satClose" value="17:00">
+</div>
+</div>
+<div class="form-group">
+<label>Sonntag</label>
+<div class="toggle-wrap">
+<div class="toggle on" id="sunToggle"></div>
+<span class="toggle-label" id="sunLabel">Geschlossen</span>
+</div>
+</div>
+<div id="sunTimes" style="display:none">
+<div class="form-row" style="margin-top:12px">
+<input type="time" id="sunOpen" value="">
+<input type="time" id="sunClose" value="">
+</div>
+</div>
+<button class="btn-save" id="saveHours">Zeiten Speichern</button>
+</div>
+
+<!-- KONTAKT -->
+<div class="panel" id="panel-contact">
+<h2>Kontaktdaten</h2>
+<div class="form-group">
+<label>Telefon (Anzeige)</label>
+<input type="text" id="cPhone" placeholder="056 555 26 60">
+</div>
+<div class="form-group">
+<label>Telefon (tel: Link)</label>
+<input type="text" id="cPhoneTel" placeholder="+41565552660">
+</div>
+<div class="form-group">
+<label>E-Mail</label>
+<input type="email" id="cEmail" placeholder="info@royarbarbershop.ch">
+</div>
+<div class="form-group">
+<label>Adresse</label>
+<input type="text" id="cAddress" placeholder="Baden, Schweiz">
+</div>
+<div class="form-group">
+<label>Google Maps URL</label>
+<input type="url" id="cMaps" placeholder="https://maps.google.com/...">
+</div>
+<button class="btn-save" id="saveContact">Kontakt Speichern</button>
+</div>
+
+</div>
+
+<div class="admin-toast" id="adminToast">Gespeichert!</div>
+
+<script src="admin.js"></script>
+</body>
+</html>

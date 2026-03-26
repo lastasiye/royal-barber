@@ -1,0 +1,31 @@
+{
+  "gallery": [
+    {"id": 1, "src": "gallery1.jpg", "alt": "Haarschnitt"},
+    {"id": 2, "src": "gallery2.jpg", "alt": "Fade Schnitt"}
+  ],
+  "services": [
+    {"id": 1, "name": "Haare", "price": 25},
+    {"id": 2, "name": "Haare & Bart", "price": 40, "popular": true},
+    {"id": 3, "name": "Kinder", "price": 20},
+    {"id": 4, "name": "Augenbrauen", "price": 10},
+    {"id": 5, "name": "Haare waschen", "price": 10}
+  ],
+  "products": [
+    {"id": 1, "name": "Styling Gel (Dose)", "price": 10},
+    {"id": 2, "name": "Wachs (Dose)", "price": 10},
+    {"id": 3, "name": "Pomade (Dose)", "price": 10},
+    {"id": 4, "name": "Pulver (Dose)", "price": 10}
+  ],
+  "hours": {
+    "monday_friday": {"open": "09:00", "close": "19:00"},
+    "saturday": {"open": "09:00", "close": "17:00"},
+    "sunday": {"open": "", "close": "", "closed": true}
+  },
+  "contact": {
+    "phone": "+41565552660",
+    "phone_display": "056 555 26 60",
+    "address": "Baden, Schweiz",
+    "email": "info@royarbarbershop.ch",
+    "maps_url": "https://maps.google.com/maps/place//data=!4m2!3m1!1s0x47906cc76164c001:0x74dcf6cd26779edf"
+  }
+}
