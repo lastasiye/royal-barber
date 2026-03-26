@@ -99,7 +99,7 @@ gtag('js',new Date());gtag('config','G-XXXXXXXXXX',{anonymize_ip:true,cookie_fla
 <div class="price-grid">
 <div class="price-card reveal">
 <h3 class="price-card-title" data-i18n="svc_services_title">Dienstleistungen</h3>
-<ul class="price-list price-list--services">
+<ul class="price-list price-list--services" id="dynServices">
 <li><span class="price-icon" aria-hidden="true">&#9986;</span><span data-i18n="svc_hair">Haare</span><span class="price-dots"></span><span class="price-val">CHF 25.–</span></li>
 <li class="price-popular"><span class="price-icon" aria-hidden="true">&#9986;</span><span data-i18n="svc_hair_beard">Haare & Bart</span><span class="price-badge" data-i18n="svc_popular">BELIEBT</span><span class="price-dots"></span><span class="price-val">CHF 40.–</span></li>
 <li><span class="price-icon" aria-hidden="true">&#9986;</span><span data-i18n="svc_kids">Kinder</span><span class="price-dots"></span><span class="price-val">CHF 20.–</span></li>
@@ -109,7 +109,7 @@ gtag('js',new Date());gtag('config','G-XXXXXXXXXX',{anonymize_ip:true,cookie_fla
 </div>
 <div class="price-card reveal reveal-d1">
 <h3 class="price-card-title" data-i18n="svc_products_title">Produkte</h3>
-<ul class="price-list price-list--products">
+<ul class="price-list price-list--products" id="dynProducts">
 <li><span class="price-icon" aria-hidden="true">&#9670;</span><span data-i18n="svc_gel">Styling Gel (Dose)</span><span class="price-dots"></span><span class="price-val">CHF 10.–</span></li>
 <li><span class="price-icon" aria-hidden="true">&#9670;</span><span data-i18n="svc_wax">Wachs (Dose)</span><span class="price-dots"></span><span class="price-val">CHF 10.–</span></li>
 <li><span class="price-icon" aria-hidden="true">&#9670;</span><span data-i18n="svc_pomade">Pomade (Dose)</span><span class="price-dots"></span><span class="price-val">CHF 10.–</span></li>
@@ -130,7 +130,7 @@ gtag('js',new Date());gtag('config','G-XXXXXXXXXX',{anonymize_ip:true,cookie_fla
 <button class="gal-tab" role="tab" aria-selected="false" data-filter="beard" data-i18n="gal_beard">Bärte</button>
 <button class="gal-tab" role="tab" aria-selected="false" data-filter="salon" data-i18n="gal_salon">Salon</button>
 </div>
-<div class="gal-grid reveal" role="tabpanel">
+<div class="gal-grid reveal" role="tabpanel" id="dynGallery">
 <div class="gi" data-cat="salon" tabindex="0" role="img" aria-label="Salon Interior"><img src="gallery1.jpg" alt="Salon Interior" style="width:100%;height:100%;object-fit:cover"></div>
 <div class="gi" data-cat="hair" tabindex="0" role="img" aria-label="Haarschnitt"><img src="gallery2.jpg" alt="Haarschnitt" style="width:100%;height:100%;object-fit:cover"></div>
 <div class="gi" data-cat="beard" tabindex="0" role="img" aria-label="Bartpflege"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
@@ -153,9 +153,9 @@ gtag('js',new Date());gtag('config','G-XXXXXXXXXX',{anonymize_ip:true,cookie_fla
 <div class="loc-map reveal"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2000!2d0!3d0!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47906cc76164c001%3A0x74dcf6cd26779edf!2sRoyar%20Barber%20Shop!5e0!3m2!1str!4v1" width="100%" height="100%" style="border:0;filter:grayscale(1) invert(0.92) contrast(0.9) brightness(0.8)" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
 <a href="https://maps.google.com/maps/place//data=!4m2!3m1!1s0x47906cc76164c001:0x74dcf6cd26779edf" target="_blank" rel="noopener" class="map-link">Google Maps'te Aç →</a></div>
 <div class="loc-info reveal">
-<div class="ib"><h4 data-i18n="loc_address">Adresse</h4><p data-i18n="loc_address_val" data-i18n-html="true">Royar Barber Shop<br>Baden, Schweiz</p></div>
-<div class="ib"><h4 data-i18n="nav_contact">Kontakt</h4><p><a href="tel:+41565552660" aria-label="Anrufen: +41 56 555 26 60">+41 56 555 26 60</a></p><p><a href="mailto:info@royarbarbershop.ch">info@royarbarbershop.ch</a></p></div>
-<div class="ib"><h4 data-i18n="loc_hours">Öffnungszeiten</h4><table class="ht" aria-label="Öffnungszeiten"><tr><td data-i18n="loc_weekdays">Montag – Freitag</td><td>09:00 – 19:00</td></tr><tr><td data-i18n="loc_saturday">Samstag</td><td>09:00 – 17:00</td></tr><tr><td class="ht-off" data-i18n="loc_sunday">Sonntag</td><td class="ht-off" data-i18n="loc_closed">Geschlossen</td></tr></table></div>
+<div class="ib" id="dynAddress"><h4 data-i18n="loc_address">Adresse</h4><p data-i18n="loc_address_val" data-i18n-html="true">Royar Barber Shop<br>Baden, Schweiz</p></div>
+<div class="ib" id="dynContact"><h4 data-i18n="nav_contact">Kontakt</h4><p><a href="tel:+41565552660" aria-label="Anrufen: +41 56 555 26 60">+41 56 555 26 60</a></p><p><a href="mailto:info@royarbarbershop.ch">info@royarbarbershop.ch</a></p></div>
+<div class="ib" id="dynHours"><h4 data-i18n="loc_hours">Öffnungszeiten</h4><table class="ht" aria-label="Öffnungszeiten"><tr><td data-i18n="loc_weekdays">Montag – Freitag</td><td>09:00 – 19:00</td></tr><tr><td data-i18n="loc_saturday">Samstag</td><td>09:00 – 17:00</td></tr><tr><td class="ht-off" data-i18n="loc_sunday">Sonntag</td><td class="ht-off" data-i18n="loc_closed">Geschlossen</td></tr></table></div>
 <div class="ib"><h4 data-i18n="loc_directions">Anfahrt</h4><p data-i18n="loc_directions_val" data-i18n-html="true">Zentral in Baden</p></div>
 </div></div></div></section>
 

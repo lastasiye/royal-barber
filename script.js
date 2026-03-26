@@ -88,3 +88,118 @@ const cb=document.getElementById('cookieBanner');
 if(!document.cookie.includes('cookie_consent')){setTimeout(()=>cb.classList.add('show'),1500);}
 document.getElementById('cookieAccept').addEventListener('click',()=>{document.cookie='cookie_consent=all;max-age=31536000;path=/;SameSite=Lax';cb.classList.remove('show');});
 document.getElementById('cookieSettings').addEventListener('click',()=>{document.cookie='cookie_consent=essential;max-age=31536000;path=/;SameSite=Lax';cb.classList.remove('show');});
+
+/* ═══ DYNAMIC DATA LOADING ═══ */
+(async function loadSiteData(){
+  const STORAGE_KEY='royar_data';
+  let D;
+  try{
+    const stored=localStorage.getItem(STORAGE_KEY);
+    if(stored){D=JSON.parse(stored);}
+    else{const r=await fetch('data.json');D=await r.json();}
+  }catch(e){return;} // fail silently, keep hardcoded content
+
+  /* GALLERY */
+  const galEl=document.getElementById('dynGallery');
+  if(galEl&&D.gallery&&D.gallery.length){
+    const SHOW_LIMIT=8;
+    let showAll=false;
+    function renderGal(){
+      const items=showAll?D.gallery:D.gallery.slice(0,SHOW_LIMIT);
+      galEl.innerHTML='';
+      // responsive grid class
+      galEl.className='gal-grid reveal vis gal-count-'+Math.min(items.length,5);
+      items.forEach((img,i)=>{
+        const div=document.createElement('div');
+        div.className='gi';
+        div.dataset.cat='all';
+        div.tabIndex=0;
+        div.setAttribute('role','img');
+        div.setAttribute('aria-label',img.alt||'Foto');
+        const imgEl=document.createElement('img');
+        imgEl.src=img.src;
+        imgEl.alt=img.alt||'';
+        imgEl.loading=i<4?'eager':'lazy';
+        imgEl.style.cssText='width:100%;height:100%;object-fit:cover';
+        div.appendChild(imgEl);
+        // lightbox
+        div.addEventListener('click',()=>{lb.classList.add('open');document.body.style.overflow='hidden';});
+        galEl.appendChild(div);
+      });
+      // "Mehr anzeigen" button
+      if(!showAll&&D.gallery.length>SHOW_LIMIT){
+        const btn=document.createElement('button');
+        btn.className='btn-outline gal-more';
+        btn.textContent=lang==='en'?'Show More':lang==='fr'?'Voir Plus':'Mehr anzeigen';
+        btn.style.cssText='grid-column:1/-1;margin:16px auto 0;padding:12px 32px';
+        btn.addEventListener('click',()=>{showAll=true;renderGal();});
+        galEl.appendChild(btn);
+      }
+    }
+    renderGal();
+    // hide filter tabs (dynamic gallery doesn't use categories)
+    const tabs=document.querySelector('.gal-tabs');
+    if(tabs)tabs.style.display='none';
+  }
+
+  /* SERVICES */
+  const svcEl=document.getElementById('dynServices');
+  if(svcEl&&D.services){
+    svcEl.innerHTML='';
+    const t=L[lang]||L.de;
+    D.services.forEach(s=>{
+      const li=document.createElement('li');
+      if(s.popular)li.className='price-popular';
+      li.innerHTML='<span class="price-icon" aria-hidden="true">&#9986;</span>'+
+        '<span>'+s.name+'</span>'+
+        (s.popular?'<span class="price-badge">'+(t.svc_popular||'BELIEBT')+'</span>':'')+
+        '<span class="price-dots"></span>'+
+        '<span class="price-val">CHF '+s.price+'.–</span>';
+      svcEl.appendChild(li);
+    });
+  }
+
+  /* PRODUCTS */
+  const prodEl=document.getElementById('dynProducts');
+  if(prodEl&&D.products){
+    prodEl.innerHTML='';
+    D.products.forEach(p=>{
+      const li=document.createElement('li');
+      li.innerHTML='<span class="price-icon" aria-hidden="true">&#9670;</span>'+
+        '<span>'+p.name+'</span>'+
+        '<span class="price-dots"></span>'+
+        '<span class="price-val">CHF '+p.price+'.–</span>';
+      prodEl.appendChild(li);
+    });
+  }
+
+  /* HOURS */
+  const hoursEl=document.getElementById('dynHours');
+  if(hoursEl&&D.hours){
+    const h=D.hours;
+    const t=L[lang]||L.de;
+    const sunText=h.sunday.closed?
+      (t.loc_closed||'Geschlossen'):
+      (h.sunday.open+' – '+h.sunday.close);
+    hoursEl.innerHTML='<h4 data-i18n="loc_hours">'+(t.loc_hours||'Öffnungszeiten')+'</h4>'+
+      '<table class="ht" aria-label="Öffnungszeiten">'+
+      '<tr><td data-i18n="loc_weekdays">'+(t.loc_weekdays||'Montag – Freitag')+'</td><td>'+h.monday_friday.open+' – '+h.monday_friday.close+'</td></tr>'+
+      '<tr><td data-i18n="loc_saturday">'+(t.loc_saturday||'Samstag')+'</td><td>'+h.saturday.open+' – '+h.saturday.close+'</td></tr>'+
+      '<tr><td class="ht-off" data-i18n="loc_sunday">'+(t.loc_sunday||'Sonntag')+'</td><td class="ht-off">'+sunText+'</td></tr>'+
+      '</table>';
+  }
+
+  /* CONTACT */
+  const contactEl=document.getElementById('dynContact');
+  if(contactEl&&D.contact){
+    const c=D.contact;
+    contactEl.innerHTML='<h4 data-i18n="nav_contact">'+(L[lang]||L.de).cont_label||'Kontakt'+'</h4>'+
+      '<p><a href="tel:'+c.phone+'" aria-label="Anrufen: '+c.phone_display+'">'+c.phone_display+'</a></p>'+
+      '<p><a href="mailto:'+c.email+'">'+c.email+'</a></p>';
+  }
+  const addressEl=document.getElementById('dynAddress');
+  if(addressEl&&D.contact){
+    addressEl.innerHTML='<h4 data-i18n="loc_address">'+(L[lang]||L.de).loc_address||'Adresse'+'</h4>'+
+      '<p>Royar Barber Shop<br>'+D.contact.address+'</p>';
+  }
+})();

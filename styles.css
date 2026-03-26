@@ -134,8 +134,18 @@ nav.scrolled{background:rgba(10,10,10,.97);box-shadow:0 2px 40px rgba(0,0,0,.5)}
 .gi{aspect-ratio:1;background:linear-gradient(160deg,#1a1510,#0d0b08);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;transition:all .4s}
 .gi::after{content:'';position:absolute;inset:0;background:rgba(201,168,76,0);transition:background .4s}
 .gi:hover::after,.gi:focus-visible::after{background:rgba(201,168,76,.1)}
+/* default: 4-col grid with first item spanning */
 .gi:first-child{grid-row:span 2;grid-column:span 2;aspect-ratio:auto}
 .gi svg{width:32px;height:32px;opacity:.12;z-index:1}.gi:first-child svg{width:56px;height:56px}
+/* dynamic gallery responsive layouts */
+.gal-count-1{grid-template-columns:1fr}.gal-count-1 .gi{aspect-ratio:16/9}
+.gal-count-1 .gi:first-child{grid-row:span 1;grid-column:span 1}
+.gal-count-2{grid-template-columns:1fr 1fr}.gal-count-2 .gi{aspect-ratio:4/3}
+.gal-count-2 .gi:first-child{grid-row:span 1;grid-column:span 1}
+.gal-count-3{grid-template-columns:1fr 1fr}.gal-count-3 .gi:first-child{grid-row:span 2;grid-column:span 1;aspect-ratio:auto}
+.gal-count-3 .gi{aspect-ratio:4/3}
+.gal-count-4,.gal-count-5{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}.gal-count-4 .gi:first-child,.gal-count-5 .gi:first-child{grid-row:span 1;grid-column:span 1}
+.gal-more{font-size:.78rem!important}
 
 /* ═══ LIGHTBOX ═══ */
 .lb{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.96);align-items:center;justify-content:center;padding:24px}
