@@ -100,7 +100,7 @@ nav.scrolled{background:rgba(10,10,10,.97);box-shadow:0 2px 40px rgba(0,0,0,.5)}
 .af-icon{width:48px;height:48px;min-width:48px;border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:1rem;flex-shrink:0}
 .af-text h4{font-size:.82rem;font-weight:600;letter-spacing:1px;margin-bottom:4px}
 .af-text p{font-size:.78rem;color:var(--muted);line-height:1.5;margin:0}
-@media(max-width:768px){.about-feats{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){.about-feats{grid-template-columns:1fr 1fr;gap:24px}}
 
 /* ═══ SERVICES / PRICE LIST ═══ */
 .services{padding:clamp(80px,10vw,120px) 0;background:linear-gradient(180deg,var(--dark) 0%,var(--black) 100%);position:relative}
@@ -195,21 +195,50 @@ footer{padding:64px 0 32px;border-top:1px solid var(--border)}
 .reveal-d1{transition-delay:.1s}.reveal-d2{transition-delay:.2s}.reveal-d3{transition-delay:.3s}
 
 /* ═══ RESPONSIVE ═══ */
+/* ═══ RESPONSIVE ═══ */
 @media(max-width:1024px){
-.hero-ct,.bk-grid,.loc-grid,.ct-grid{grid-template-columns:1fr}
+.hero-ct,.loc-grid{grid-template-columns:1fr}
 .hero-vis{max-width:500px}
+.price-grid{gap:24px}
 .ft-grid{grid-template-columns:1fr 1fr}
 }
 @media(max-width:768px){
-.nav-links,.nav-cta{display:none}.burger{display:block}
+.nav-links{display:none}.burger{display:block}
 .hero{min-height:auto;padding:100px 0 60px}
+.hero-ct{gap:40px}
 .gal-grid{grid-template-columns:repeat(2,1fr)}.gi:first-child{grid-row:span 1;grid-column:span 2}
-.fr,.about-feats{grid-template-columns:1fr}
-.slots{grid-template-columns:repeat(3,1fr)}
+.about-feats{grid-template-columns:1fr 1fr}
+.price-grid{grid-template-columns:1fr}
+.loc-grid{grid-template-columns:1fr}
+.loc-map{aspect-ratio:16/9}
 .ft-grid{grid-template-columns:1fr;gap:32px}
 .ft-btm{flex-direction:column;gap:16px;text-align:center}
+/* touch targets */
+.btn-gold,.btn-outline,.nav-cta,.lang-btn,.gal-tab{min-height:44px}
+.lang-btn{padding:8px 12px}
+/* readable font */
+body{font-size:clamp(15px,1vw,16px)}
+.hero-sub,.about-desc,.price-list li span:nth-child(2),.sc-desc,.ib p,.ib a,.ft-brand p,.ft-col a{font-size:max(.88rem,14px)}
 }
-@media(max-width:480px){.gal-grid{grid-template-columns:1fr 1fr}.gi:first-child{grid-row:span 1;grid-column:span 1}.gal-tabs{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}.gal-tab{flex-shrink:0}}
+@media(max-width:480px){
+.hero-h1{font-size:1.8rem}
+.gal-grid{grid-template-columns:1fr 1fr}
+.gi:first-child{grid-row:span 1;grid-column:span 1}
+.gal-tabs{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}
+.gal-tab{flex-shrink:0}
+.about-feats{grid-template-columns:1fr 1fr;gap:20px}
+.price-card{padding:24px 20px}
+.price-val{font-size:1rem}
+}
+@media(max-width:375px){
+.hero-h1{font-size:1.5rem}
+.hero-badge{font-size:.6rem;padding:6px 14px}
+.hero-actions .btn-gold{padding:14px 24px;font-size:.7rem;width:100%}
+.st{font-size:1.6rem}
+.about-feats{grid-template-columns:1fr;gap:16px}
+.price-card{padding:20px 16px}
+.ctn{padding:0 16px}
+}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--black)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--gold)}
 
 
@@ -218,9 +247,6 @@ footer{padding:64px 0 32px;border-top:1px solid var(--border)}
 
 
 /* MOBILE FIXED CTA */
-.mob-cta{display:none;position:fixed;bottom:0;left:0;right:0;z-index:996;background:var(--black);border-top:1px solid var(--gold);padding:12px 16px;text-align:center}
-.mob-cta a{display:block;padding:14px;background:var(--gold);color:var(--black);font-family:var(--fb);font-weight:600;font-size:.78rem;letter-spacing:2px;text-transform:uppercase;text-decoration:none}
-@media(max-width:768px){.mob-cta{display:block}.wa-float{bottom:80px;right:16px;width:50px;height:50px;font-size:1.4rem}}
 /* COOKIE BANNER */
 .cookie-banner{position:fixed;bottom:0;left:0;right:0;z-index:9998;background:var(--card);border-top:1px solid var(--gold);padding:24px 0;transform:translateY(100%);transition:transform .5s var(--ease);display:none}
 .cookie-banner.show{transform:translateY(0);display:block}
