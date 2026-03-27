@@ -175,43 +175,5 @@ document.getElementById('cookieSettings').addEventListener('click',()=>{document
   }
   }catch(e){console.warn('Products render error',e);}
 
-  /* HOURS */
-  try{
-  const hoursEl=document.getElementById('dynHours');
-  if(hoursEl&&D.hours){
-    const h=D.hours;
-    const t=L[lang]||L.de;
-    const sunText=(h.sunday&&h.sunday.closed)?(t.loc_closed||'Geschlossen'):'';
-    hoursEl.innerHTML='<h4 data-i18n="loc_hours">'+(t.loc_hours||'Öffnungszeiten')+'</h4>'+
-      '<table class="ht" aria-label="Öffnungszeiten">'+
-      '<tr><td data-i18n="loc_mon_thu">'+(t.loc_mon_thu||'Montag – Donnerstag')+'</td><td>'+(h.monday_thursday?h.monday_thursday.open+' – '+h.monday_thursday.close:'09:00 – 19:00')+'</td></tr>'+
-      '<tr><td data-i18n="loc_friday">'+(t.loc_friday||'Freitag')+'</td><td>'+(h.friday?h.friday.open+' – '+h.friday.close:'09:00 – 20:00')+'</td></tr>'+
-      '<tr><td data-i18n="loc_saturday">'+(t.loc_saturday||'Samstag')+'</td><td>'+(h.saturday?h.saturday.open+' – '+h.saturday.close:'09:00 – 18:00')+'</td></tr>'+
-      '<tr><td class="ht-off" data-i18n="loc_sunday">'+(t.loc_sunday||'Sonntag')+'</td><td class="ht-off">'+(sunText||'Geschlossen')+'</td></tr>'+
-      '</table>';
-  }
-  }catch(e){console.warn('Hours render error',e);}
-
-  /* CONTACT */
-  try{
-  const contactEl=document.getElementById('dynContact');
-  if(contactEl&&D.contact){
-    const c=D.contact;
-    const ct=L[lang]||L.de;
-    contactEl.innerHTML='<h4 data-i18n="nav_contact">'+(ct.nav_contact||'Kontakt')+'</h4>'+
-      '<p><a href="tel:'+(c.phone||'0565552660')+'" aria-label="Anrufen: '+(c.phone_display||'056 555 26 60')+'">'+(c.phone_display||'056 555 26 60')+'</a></p>'+
-      '<p><a href="mailto:'+(c.email||'info@royarbarbershop.ch')+'">'+(c.email||'info@royarbarbershop.ch')+'</a></p>';
-  }
-  }catch(e){console.warn('Contact render error',e);}
-
-  try{
-  const addressEl=document.getElementById('dynAddress');
-  if(addressEl&&D.contact){
-    const at=L[lang]||L.de;
-    const addr=D.contact.address||'Dynamostrasse 1, 5400 Baden, Schweiz';
-    const addrParts=addr.split(',').map(s=>s.trim());
-    addressEl.innerHTML='<h4 data-i18n="loc_address">'+(at.loc_address||'Adresse')+'</h4>'+
-      '<p>Royar Barber Shop<br>'+addrParts.join('<br>')+'</p>';
-  }
-  }catch(e){console.warn('Address render error',e);}
+  /* HOURS, CONTACT, ADDRESS — statik HTML'den geliyor, JS dokunmuyor */
 })();
