@@ -91,17 +91,16 @@ document.getElementById('cookieSettings').addEventListener('click',()=>{document
 
 /* ═══ DYNAMIC DATA LOADING ═══ */
 (async function loadSiteData(){
-  const STORAGE_KEY='royar_data';
-  const DATA_VERSION='2';
   let D;
   try{
-    const stored=localStorage.getItem(STORAGE_KEY);
-    const storedVer=localStorage.getItem(STORAGE_KEY+'_v');
-    if(stored&&storedVer===DATA_VERSION){D=JSON.parse(stored);}
-    else{localStorage.removeItem(STORAGE_KEY);const r=await fetch('data.json');D=await r.json();}
+    localStorage.removeItem('royar_data');
+    const r=await fetch('data.json?v=2');
+    if(!r.ok)throw new Error('fetch failed');
+    D=await r.json();
   }catch(e){console.warn('data.json load failed, using hardcoded content');return;}
 
   /* GALLERY */
+  try{
   const galEl=document.getElementById('dynGallery');
   if(galEl&&D.gallery&&D.gallery.length){
     const SHOW_LIMIT=8;
@@ -109,7 +108,6 @@ document.getElementById('cookieSettings').addEventListener('click',()=>{document
     function renderGal(){
       const items=showAll?D.gallery:D.gallery.slice(0,SHOW_LIMIT);
       galEl.innerHTML='';
-      // responsive grid class
       galEl.className='gal-grid reveal vis gal-count-'+Math.min(items.length,5);
       items.forEach((img,i)=>{
         const div=document.createElement('div');
@@ -124,11 +122,9 @@ document.getElementById('cookieSettings').addEventListener('click',()=>{document
         imgEl.loading=i<4?'eager':'lazy';
         imgEl.style.cssText='width:100%;height:100%;object-fit:cover';
         div.appendChild(imgEl);
-        // lightbox
         div.addEventListener('click',()=>{lb.classList.add('open');document.body.style.overflow='hidden';});
         galEl.appendChild(div);
       });
-      // "Mehr anzeigen" button
       if(!showAll&&D.gallery.length>SHOW_LIMIT){
         const btn=document.createElement('button');
         btn.className='btn-outline gal-more';
@@ -139,12 +135,13 @@ document.getElementById('cookieSettings').addEventListener('click',()=>{document
       }
     }
     renderGal();
-    // hide filter tabs (dynamic gallery doesn't use categories)
     const tabs=document.querySelector('.gal-tabs');
     if(tabs)tabs.style.display='none';
   }
+  }catch(e){console.warn('Gallery render error',e);}
 
   /* SERVICES */
+  try{
   const svcEl=document.getElementById('dynServices');
   if(svcEl&&D.services){
     svcEl.innerHTML='';
@@ -160,8 +157,10 @@ document.getElementById('cookieSettings').addEventListener('click',()=>{document
       svcEl.appendChild(li);
     });
   }
+  }catch(e){console.warn('Services render error',e);}
 
   /* PRODUCTS */
+  try{
   const prodEl=document.getElementById('dynProducts');
   if(prodEl&&D.products){
     prodEl.innerHTML='';
@@ -174,37 +173,45 @@ document.getElementById('cookieSettings').addEventListener('click',()=>{document
       prodEl.appendChild(li);
     });
   }
+  }catch(e){console.warn('Products render error',e);}
 
   /* HOURS */
+  try{
   const hoursEl=document.getElementById('dynHours');
   if(hoursEl&&D.hours){
     const h=D.hours;
     const t=L[lang]||L.de;
-    const sunText=h.sunday&&h.sunday.closed?
-      (t.loc_closed||'Geschlossen'):
-      ((h.sunday&&h.sunday.open?h.sunday.open:'')+' – '+(h.sunday&&h.sunday.close?h.sunday.close:''));
+    const sunText=(h.sunday&&h.sunday.closed)?(t.loc_closed||'Geschlossen'):'';
     hoursEl.innerHTML='<h4 data-i18n="loc_hours">'+(t.loc_hours||'Öffnungszeiten')+'</h4>'+
       '<table class="ht" aria-label="Öffnungszeiten">'+
-      '<tr><td data-i18n="loc_mon_thu">'+(t.loc_mon_thu||'Montag – Donnerstag')+'</td><td>'+h.monday_thursday.open+' – '+h.monday_thursday.close+'</td></tr>'+
-      '<tr><td data-i18n="loc_friday">'+(t.loc_friday||'Freitag')+'</td><td>'+h.friday.open+' – '+h.friday.close+'</td></tr>'+
-      '<tr><td data-i18n="loc_saturday">'+(t.loc_saturday||'Samstag')+'</td><td>'+h.saturday.open+' – '+h.saturday.close+'</td></tr>'+
-      '<tr><td class="ht-off" data-i18n="loc_sunday">'+(t.loc_sunday||'Sonntag')+'</td><td class="ht-off">'+sunText+'</td></tr>'+
+      '<tr><td data-i18n="loc_mon_thu">'+(t.loc_mon_thu||'Montag – Donnerstag')+'</td><td>'+(h.monday_thursday?h.monday_thursday.open+' – '+h.monday_thursday.close:'09:00 – 19:00')+'</td></tr>'+
+      '<tr><td data-i18n="loc_friday">'+(t.loc_friday||'Freitag')+'</td><td>'+(h.friday?h.friday.open+' – '+h.friday.close:'09:00 – 20:00')+'</td></tr>'+
+      '<tr><td data-i18n="loc_saturday">'+(t.loc_saturday||'Samstag')+'</td><td>'+(h.saturday?h.saturday.open+' – '+h.saturday.close:'09:00 – 18:00')+'</td></tr>'+
+      '<tr><td class="ht-off" data-i18n="loc_sunday">'+(t.loc_sunday||'Sonntag')+'</td><td class="ht-off">'+(sunText||'Geschlossen')+'</td></tr>'+
       '</table>';
   }
+  }catch(e){console.warn('Hours render error',e);}
 
   /* CONTACT */
+  try{
   const contactEl=document.getElementById('dynContact');
   if(contactEl&&D.contact){
     const c=D.contact;
     const ct=L[lang]||L.de;
     contactEl.innerHTML='<h4 data-i18n="nav_contact">'+(ct.nav_contact||'Kontakt')+'</h4>'+
-      '<p><a href="tel:'+c.phone+'" aria-label="Anrufen: '+c.phone_display+'">'+c.phone_display+'</a></p>'+
-      '<p><a href="mailto:'+c.email+'">'+c.email+'</a></p>';
+      '<p><a href="tel:'+(c.phone||'0565552660')+'" aria-label="Anrufen: '+(c.phone_display||'056 555 26 60')+'">'+(c.phone_display||'056 555 26 60')+'</a></p>'+
+      '<p><a href="mailto:'+(c.email||'info@royarbarbershop.ch')+'">'+(c.email||'info@royarbarbershop.ch')+'</a></p>';
   }
+  }catch(e){console.warn('Contact render error',e);}
+
+  try{
   const addressEl=document.getElementById('dynAddress');
   if(addressEl&&D.contact){
     const at=L[lang]||L.de;
+    const addr=D.contact.address||'Dynamostrasse 1, 5400 Baden, Schweiz';
+    const addrParts=addr.split(',').map(s=>s.trim());
     addressEl.innerHTML='<h4 data-i18n="loc_address">'+(at.loc_address||'Adresse')+'</h4>'+
-      '<p>Royar Barber Shop<br>'+D.contact.address+'</p>';
+      '<p>Royar Barber Shop<br>'+addrParts.join('<br>')+'</p>';
   }
+  }catch(e){console.warn('Address render error',e);}
 })();
