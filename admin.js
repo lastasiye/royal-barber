@@ -1,26 +1,32 @@
 /* ═══ ADMIN PANEL ═══ */
-const STORAGE_KEY = 'royar_data';
-const AUTH_KEY = 'royar_auth';
-const PW_KEY = 'royar_pw';
-const DEFAULT_PW = 'royar2026';
-function getPassword() { return localStorage.getItem(PW_KEY) || DEFAULT_PW; }
-
+const API = 'api';
 let DATA = {};
+let CSRF_TOKEN = '';
+
+/* ═══ API HELPER ═══ */
+async function api(endpoint, options = {}) {
+  const opts = { ...options };
+  if (!opts.headers) opts.headers = {};
+  if (CSRF_TOKEN) opts.headers['X-CSRF-Token'] = CSRF_TOKEN;
+  opts.credentials = 'same-origin';
+  const res = await fetch(API + '/' + endpoint, opts);
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || 'Fehler');
+  return json;
+}
 
 /* ═══ DATA LAYER ═══ */
 async function loadData() {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored) {
-    DATA = JSON.parse(stored);
-    return;
-  }
   const res = await fetch('data.json');
   DATA = await res.json();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
 }
 
-function saveData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
+async function saveData() {
+  await api('save-data.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(DATA)
+  });
 }
 
 function confirmAction(msg) {
@@ -43,26 +49,29 @@ function showToast(msg) {
 }
 
 /* ═══ AUTH ═══ */
-function checkAuth() {
-  return sessionStorage.getItem(AUTH_KEY) === 'true';
-}
-
 document.getElementById('loginBtn').addEventListener('click', doLogin);
 document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
-function doLogin() {
+async function doLogin() {
   const u = document.getElementById('loginUser').value.trim();
   const p = document.getElementById('loginPass').value;
-  if (u === 'admin' && p === getPassword()) {
-    sessionStorage.setItem(AUTH_KEY, 'true');
+  try {
+    const res = await api('login.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: u, password: p })
+    });
+    CSRF_TOKEN = res.data.csrf_token;
+    sessionStorage.setItem('csrf_token', CSRF_TOKEN);
     showAdmin();
-  } else {
+  } catch {
     document.getElementById('loginError').style.display = 'block';
   }
 }
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
-  sessionStorage.removeItem(AUTH_KEY);
+  CSRF_TOKEN = '';
+  sessionStorage.removeItem('csrf_token');
   document.getElementById('adminWrap').style.display = 'none';
   document.getElementById('loginWrap').style.display = 'flex';
 });
@@ -78,7 +87,14 @@ async function showAdmin() {
   renderContact();
 }
 
-if (checkAuth()) showAdmin();
+// Restore session if csrf_token exists
+(function initSession() {
+  const token = sessionStorage.getItem('csrf_token');
+  if (token) {
+    CSRF_TOKEN = token;
+    showAdmin();
+  }
+})();
 
 /* ═══ TABS ═══ */
 document.querySelectorAll('.tab').forEach(tab => {
@@ -105,34 +121,18 @@ uploadZone.addEventListener('drop', e => {
 });
 fileInput.addEventListener('change', () => handleFiles(fileInput.files));
 
-function compressImage(file) {
-  return new Promise(resolve => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let w = img.width, h = img.height;
-        if (w > 1200) { h = Math.round(h * 1200 / w); w = 1200; }
-        canvas.width = w;
-        canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        resolve(canvas.toDataURL('image/jpeg', 0.8));
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
 async function handleFiles(files) {
   for (const file of files) {
     if (!file.type.startsWith('image/')) continue;
-    const src = await compressImage(file);
-    const id = Date.now() + Math.random();
-    DATA.gallery.push({ id, src, alt: file.name.replace(/\.[^.]+$/, '') });
+    const formData = new FormData();
+    formData.append('image', file);
+    try {
+      const res = await api('upload-image.php', { method: 'POST', body: formData });
+      DATA.gallery.push({ id: res.filename, src: 'uploads/' + res.filename, alt: file.name.replace(/\.[^.]+$/, '') });
+    } catch (err) {
+      showToast('Upload fehlgeschlagen: ' + err.message);
+    }
   }
-  saveData();
   renderGallery();
   fileInput.value = '';
 }
@@ -147,10 +147,18 @@ function renderGallery() {
     div.innerHTML = '<img src="' + item.src + '" alt="' + (item.alt || '') + '"><button class="del-btn" title="Löschen">&times;</button>';
     div.querySelector('.del-btn').addEventListener('click', async () => {
       if (!await confirmAction('Dieses Foto wirklich löschen?')) return;
-      DATA.gallery.splice(idx, 1);
-      saveData();
-      renderGallery();
-      showToast('Foto gelöscht!');
+      try {
+        await api('delete-image.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: item.id })
+        });
+        DATA.gallery.splice(idx, 1);
+        renderGallery();
+        showToast('Foto gelöscht!');
+      } catch (err) {
+        showToast('Fehler: ' + err.message);
+      }
     });
     // drag & drop reorder
     div.addEventListener('dragstart', e => {
@@ -164,18 +172,21 @@ function renderGallery() {
       const from = parseInt(e.dataTransfer.getData('text/plain'));
       const to = idx;
       if (from === to) return;
-      const item = DATA.gallery.splice(from, 1)[0];
-      DATA.gallery.splice(to, 0, item);
-      saveData();
+      const moved = DATA.gallery.splice(from, 1)[0];
+      DATA.gallery.splice(to, 0, moved);
       renderGallery();
     });
     galGrid.appendChild(div);
   });
 }
 
-document.getElementById('saveGallery').addEventListener('click', () => {
-  saveData();
-  showToast('Galerie gespeichert!');
+document.getElementById('saveGallery').addEventListener('click', async () => {
+  try {
+    await saveData();
+    showToast('Galerie gespeichert!');
+  } catch (err) {
+    showToast('Fehler: ' + err.message);
+  }
 });
 
 /* ═══ SERVICES ═══ */
@@ -242,9 +253,13 @@ document.getElementById('addProduct').addEventListener('click', () => {
   renderProducts();
 });
 
-document.getElementById('savePrices').addEventListener('click', () => {
-  saveData();
-  showToast('Preisliste gespeichert!');
+document.getElementById('savePrices').addEventListener('click', async () => {
+  try {
+    await saveData();
+    showToast('Preisliste gespeichert!');
+  } catch (err) {
+    showToast('Fehler: ' + err.message);
+  }
 });
 
 /* ═══ HOURS ═══ */
@@ -272,7 +287,7 @@ document.getElementById('sunToggle').addEventListener('click', () => {
   document.getElementById('sunTimes').style.display = isClosed ? 'none' : 'block';
 });
 
-document.getElementById('saveHours').addEventListener('click', () => {
+document.getElementById('saveHours').addEventListener('click', async () => {
   const isClosed = document.getElementById('sunToggle').classList.contains('on');
   DATA.hours = {
     monday_friday: { open: document.getElementById('mfOpen').value, close: document.getElementById('mfClose').value },
@@ -281,8 +296,12 @@ document.getElementById('saveHours').addEventListener('click', () => {
       ? { open: '', close: '', closed: true }
       : { open: document.getElementById('sunOpen').value, close: document.getElementById('sunClose').value, closed: false }
   };
-  saveData();
-  showToast('Öffnungszeiten gespeichert!');
+  try {
+    await saveData();
+    showToast('Öffnungszeiten gespeichert!');
+  } catch (err) {
+    showToast('Fehler: ' + err.message);
+  }
 });
 
 /* ═══ CONTACT ═══ */
@@ -295,7 +314,7 @@ function renderContact() {
   document.getElementById('cMaps').value = c.maps_url || '';
 }
 
-document.getElementById('saveContact').addEventListener('click', () => {
+document.getElementById('saveContact').addEventListener('click', async () => {
   DATA.contact = {
     phone: document.getElementById('cPhoneTel').value,
     phone_display: document.getElementById('cPhone').value,
@@ -303,12 +322,16 @@ document.getElementById('saveContact').addEventListener('click', () => {
     address: document.getElementById('cAddress').value,
     maps_url: document.getElementById('cMaps').value
   };
-  saveData();
-  showToast('Kontaktdaten gespeichert!');
+  try {
+    await saveData();
+    showToast('Kontaktdaten gespeichert!');
+  } catch (err) {
+    showToast('Fehler: ' + err.message);
+  }
 });
 
 /* ═══ PASSWORD CHANGE ═══ */
-document.getElementById('savePassword').addEventListener('click', () => {
+document.getElementById('savePassword').addEventListener('click', async () => {
   const errEl = document.getElementById('pwError');
   const sucEl = document.getElementById('pwSuccess');
   errEl.style.display = 'none';
@@ -318,11 +341,6 @@ document.getElementById('savePassword').addEventListener('click', () => {
   const newPw = document.getElementById('pwNew').value;
   const confirm = document.getElementById('pwConfirm').value;
 
-  if (current !== getPassword()) {
-    errEl.textContent = 'Aktuelles Passwort ist falsch.';
-    errEl.style.display = 'block';
-    return;
-  }
   if (newPw.length < 6) {
     errEl.textContent = 'Neues Passwort muss mindestens 6 Zeichen haben.';
     errEl.style.display = 'block';
@@ -334,11 +352,20 @@ document.getElementById('savePassword').addEventListener('click', () => {
     return;
   }
 
-  localStorage.setItem(PW_KEY, newPw);
-  document.getElementById('pwCurrent').value = '';
-  document.getElementById('pwNew').value = '';
-  document.getElementById('pwConfirm').value = '';
-  sucEl.textContent = 'Passwort erfolgreich geändert!';
-  sucEl.style.display = 'block';
-  showToast('Passwort geändert!');
+  try {
+    await api('change-password.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ old_password: current, new_password: newPw })
+    });
+    document.getElementById('pwCurrent').value = '';
+    document.getElementById('pwNew').value = '';
+    document.getElementById('pwConfirm').value = '';
+    sucEl.textContent = 'Passwort erfolgreich geändert!';
+    sucEl.style.display = 'block';
+    showToast('Passwort geändert!');
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+  }
 });
