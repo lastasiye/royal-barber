@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /password.json
+
+Sitemap: https://royarbarbershop.ch/sitemap.xml
