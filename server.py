@@ -77,8 +77,10 @@ class RoyarHandler(http.server.SimpleHTTPRequestHandler):
         super().__init__(*args, directory=BASE_DIR, **kwargs)
 
     def end_headers(self):
-        if self.path.endswith('.json') or '/api/' in self.path:
-            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        # Dev server: no caching for anything
+        self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        self.send_header('Pragma', 'no-cache')
+        self.send_header('Expires', '0')
         super().end_headers()
 
     def do_POST(self):
