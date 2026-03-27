@@ -1,0 +1,17 @@
+# PHP-Ausführung in uploads/ verhindern
+<Directory "uploads">
+    <FilesMatch "\.php$">
+        Require all denied
+    </FilesMatch>
+    php_flag engine off
+</Directory>
+
+# Zugriff auf config.php und password.json blockieren
+<FilesMatch "(config\.php|password\.json)$">
+    Require all denied
+</FilesMatch>
+
+# .htaccess-Datei schützen
+<Files ".htaccess">
+    Require all denied
+</Files>

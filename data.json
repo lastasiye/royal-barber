@@ -1,7 +1,7 @@
 {
   "gallery": [
-    {"id": 1, "src": "gallery1.jpg", "alt": "Haarschnitt"},
-    {"id": 2, "src": "gallery2.jpg", "alt": "Fade Schnitt"}
+    {"id": 1, "src": "uploads/gallery1.jpg", "alt": "Haarschnitt"},
+    {"id": 2, "src": "uploads/gallery2.jpg", "alt": "Fade Schnitt"}
   ],
   "services": [
     {"id": 1, "name": "Haare", "price": 25},
