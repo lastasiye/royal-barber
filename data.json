@@ -2,12 +2,12 @@
     "gallery": [
         {
             "id": 1,
-            "src": "uploads/gallery1.jpg",
+            "src": "gallery1.jpg",
             "alt": "Haarschnitt"
         },
         {
             "id": 2,
-            "src": "uploads/gallery2.jpg",
+            "src": "gallery2.jpg",
             "alt": "Fade Schnitt"
         }
     ],
