@@ -94,10 +94,11 @@ document.getElementById('cookieSettings').addEventListener('click',()=>{document
   let D;
   try{
     localStorage.removeItem('royar_data');
-    const r=await fetch('data.json?v=2');
+    const r=await fetch('data.json?t='+Date.now(),{cache:'no-store'});
     if(!r.ok)throw new Error('fetch failed');
     D=await r.json();
-  }catch(e){console.warn('data.json load failed, using hardcoded content');return;}
+    console.log('[SITE] data.json loaded',D);
+  }catch(e){console.warn('[SITE] data.json load failed, using hardcoded content');return;}
 
   /* GALLERY */
   try{
@@ -175,5 +176,46 @@ document.getElementById('cookieSettings').addEventListener('click',()=>{document
   }
   }catch(e){console.warn('Products render error',e);}
 
-  /* HOURS, CONTACT, ADDRESS — statik HTML'den geliyor, JS dokunmuyor */
+  /* HOURS — update text values in existing table, don't replace innerHTML */
+  try{
+  if(D.hours){
+    const h=D.hours;
+    const rows=document.querySelectorAll('.ht tr');
+    if(rows.length>=4){
+      // Mo-Do
+      if(h.monday_thursday) rows[0].querySelector('td:last-child').textContent=h.monday_thursday.open+' – '+h.monday_thursday.close;
+      // Fr
+      if(h.friday) rows[1].querySelector('td:last-child').textContent=h.friday.open+' – '+h.friday.close;
+      // Sa
+      if(h.saturday) rows[2].querySelector('td:last-child').textContent=h.saturday.open+' – '+h.saturday.close;
+      // So
+      if(h.sunday&&h.sunday.closed){
+        const t=L[lang]||L.de;
+        rows[3].querySelector('td:last-child').textContent=t.loc_closed||'Geschlossen';
+      }
+    }
+    console.log('[SITE] Hours updated from data.json');
+  }
+  }catch(e){console.warn('[SITE] Hours update error',e);}
+
+  /* CONTACT — update links in existing elements, don't replace innerHTML */
+  try{
+  if(D.contact){
+    const c=D.contact;
+    // Update phone link
+    const phoneLink=document.querySelector('.loc-info a[href^="tel:"]');
+    if(phoneLink&&c.phone_display){
+      phoneLink.textContent=c.phone_display;
+      phoneLink.href='tel:'+(c.phone||c.phone_display.replace(/\s/g,''));
+      phoneLink.setAttribute('aria-label','Anrufen: '+c.phone_display);
+    }
+    // Update email link
+    const emailLink=document.querySelector('.loc-info a[href^="mailto:"]');
+    if(emailLink&&c.email){
+      emailLink.textContent=c.email;
+      emailLink.href='mailto:'+c.email;
+    }
+    console.log('[SITE] Contact updated from data.json');
+  }
+  }catch(e){console.warn('[SITE] Contact update error',e);}
 })();
