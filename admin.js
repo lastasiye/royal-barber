@@ -265,8 +265,10 @@ document.getElementById('savePrices').addEventListener('click', async () => {
 /* ═══ HOURS ═══ */
 function renderHours() {
   const h = DATA.hours;
-  document.getElementById('mfOpen').value = h.monday_friday.open;
-  document.getElementById('mfClose').value = h.monday_friday.close;
+  document.getElementById('mtOpen').value = h.monday_thursday.open;
+  document.getElementById('mtClose').value = h.monday_thursday.close;
+  document.getElementById('friOpen').value = h.friday.open;
+  document.getElementById('friClose').value = h.friday.close;
   document.getElementById('satOpen').value = h.saturday.open;
   document.getElementById('satClose').value = h.saturday.close;
   const isClosed = h.sunday.closed !== false;
@@ -290,10 +292,11 @@ document.getElementById('sunToggle').addEventListener('click', () => {
 document.getElementById('saveHours').addEventListener('click', async () => {
   const isClosed = document.getElementById('sunToggle').classList.contains('on');
   DATA.hours = {
-    monday_friday: { open: document.getElementById('mfOpen').value, close: document.getElementById('mfClose').value },
+    monday_thursday: { open: document.getElementById('mtOpen').value, close: document.getElementById('mtClose').value },
+    friday: { open: document.getElementById('friOpen').value, close: document.getElementById('friClose').value },
     saturday: { open: document.getElementById('satOpen').value, close: document.getElementById('satClose').value },
     sunday: isClosed
-      ? { open: '', close: '', closed: true }
+      ? { closed: true }
       : { open: document.getElementById('sunOpen').value, close: document.getElementById('sunClose').value, closed: false }
   };
   try {

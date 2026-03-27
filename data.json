@@ -17,12 +17,13 @@
     {"id": 4, "name": "Pulver (Dose)", "price": 10}
   ],
   "hours": {
-    "monday_friday": {"open": "09:00", "close": "19:00"},
-    "saturday": {"open": "09:00", "close": "17:00"},
-    "sunday": {"open": "", "close": "", "closed": true}
+    "monday_thursday": {"open": "09:00", "close": "19:00"},
+    "friday": {"open": "09:00", "close": "20:00"},
+    "saturday": {"open": "09:00", "close": "18:00"},
+    "sunday": {"closed": true}
   },
   "contact": {
-    "phone": "+41565552660",
+    "phone": "0565552660",
     "phone_display": "056 555 26 60",
     "address": "Dynamostrasse 1, 5400 Baden, Schweiz",
     "email": "info@royarbarbershop.ch",
