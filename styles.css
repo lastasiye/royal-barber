@@ -241,6 +241,29 @@ body{font-size:clamp(15px,1vw,16px)}
 }
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--black)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--gold)}
 
+/* ═══ PRINT ═══ */
+@media print{
+body{background:#fff;color:#000;font-size:12pt}
+nav,.burger,.mob-menu,.hero-bg,.hero-grid,.strip,.cookie-banner,.toast,.lb,.gal-tabs,.skip-link,.google-reviews-link,.hero-actions{display:none!important}
+.hero{min-height:auto;padding:20px 0}
+.hero-ct{display:block}
+.hero-vis{display:none}
+.hero-h1{color:#000;font-size:24pt}
+.hero-sub{color:#333}
+.price-card{border:1px solid #ccc;break-inside:avoid;page-break-inside:avoid}
+.price-val{color:#000}
+.price-badge{background:#ccc;color:#000}
+.sl{color:#666}
+.st{color:#000}
+.about-feat,.ib{break-inside:avoid}
+.loc-map iframe{display:none}
+.loc-map .map-link{display:none}
+footer{border-top:1px solid #ccc}
+.ft-soc{display:none}
+a{color:#000;text-decoration:underline}
+a[href^="tel:"]::after,a[href^="mailto:"]::after{content:" (" attr(href) ")";font-size:9pt;color:#666}
+}
+
 
 /* HONEYPOT */
 .hp-field{position:absolute;left:-9999px;opacity:0;height:0;width:0;overflow:hidden;pointer-events:none;tab-index:-1}

@@ -27,6 +27,17 @@ RedirectMatch 404 /\.git
     Header set Permissions-Policy "camera=(), microphone=(), geolocation=()"
 </IfModule>
 
+# Cache-Header für statische Dateien
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType text/css "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+    ExpiresByType font/woff2 "access plus 1 month"
+</IfModule>
+
 # PHP-Ausführung in uploads/ verhindern (RewriteRule statt Directory)
 <IfModule mod_rewrite.c>
     RewriteEngine On

@@ -80,28 +80,28 @@
 <div class="panel" id="panel-hours">
 <h2>Öffnungszeiten</h2>
 <div class="form-group">
-<label>Montag – Donnerstag</label>
+<label for="mtOpen">Montag – Donnerstag</label>
 <div class="form-row">
 <input type="time" id="mtOpen" value="09:00">
 <input type="time" id="mtClose" value="19:00">
 </div>
 </div>
 <div class="form-group">
-<label>Freitag</label>
+<label for="friOpen">Freitag</label>
 <div class="form-row">
 <input type="time" id="friOpen" value="09:00">
 <input type="time" id="friClose" value="20:00">
 </div>
 </div>
 <div class="form-group">
-<label>Samstag</label>
+<label for="satOpen">Samstag</label>
 <div class="form-row">
 <input type="time" id="satOpen" value="09:00">
 <input type="time" id="satClose" value="18:00">
 </div>
 </div>
 <div class="form-group">
-<label>Sonntag</label>
+<label for="sunToggle">Sonntag</label>
 <div class="toggle-wrap">
 <div class="toggle on" id="sunToggle"></div>
 <span class="toggle-label" id="sunLabel">Geschlossen</span>
@@ -120,23 +120,23 @@
 <div class="panel" id="panel-contact">
 <h2>Kontaktdaten</h2>
 <div class="form-group">
-<label>Telefon (Anzeige)</label>
+<label for="cPhone">Telefon (Anzeige)</label>
 <input type="text" id="cPhone" placeholder="056 555 26 60" maxlength="30" pattern="[0-9\s\+\-()]+">
 </div>
 <div class="form-group">
-<label>Telefon (tel: Link)</label>
+<label for="cPhoneTel">Telefon (tel: Link)</label>
 <input type="text" id="cPhoneTel" placeholder="0565552660" maxlength="20" pattern="[0-9\+]+">
 </div>
 <div class="form-group">
-<label>E-Mail</label>
+<label for="cEmail">E-Mail</label>
 <input type="email" id="cEmail" placeholder="info@royarbarbershop.ch" maxlength="200">
 </div>
 <div class="form-group">
-<label>Adresse</label>
+<label for="cAddress">Adresse</label>
 <input type="text" id="cAddress" placeholder="Dynamostrasse 1, 5400 Baden, Schweiz" maxlength="300">
 </div>
 <div class="form-group">
-<label>Google Maps URL</label>
+<label for="cMaps">Google Maps URL</label>
 <input type="url" id="cMaps" placeholder="https://maps.google.com/..." maxlength="500">
 </div>
 <button class="btn-save" id="saveContact">Kontakt Speichern</button>
@@ -146,15 +146,15 @@
 <div class="panel" id="panel-settings">
 <h2>Passwort ändern</h2>
 <div class="form-group">
-<label>Aktuelles Passwort</label>
+<label for="pwCurrent">Aktuelles Passwort</label>
 <input type="password" id="pwCurrent" placeholder="Aktuelles Passwort">
 </div>
 <div class="form-group">
-<label>Neues Passwort</label>
+<label for="pwNew">Neues Passwort</label>
 <input type="password" id="pwNew" placeholder="Mindestens 6 Zeichen">
 </div>
 <div class="form-group">
-<label>Neues Passwort bestätigen</label>
+<label for="pwConfirm">Neues Passwort bestätigen</label>
 <input type="password" id="pwConfirm" placeholder="Passwort wiederholen">
 </div>
 <div class="pw-error" id="pwError" style="display:none;color:#e74c3c;font-size:.8rem;margin-bottom:12px"></div>

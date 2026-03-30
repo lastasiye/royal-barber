@@ -20,17 +20,14 @@ async function loadData() {
   const res = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' });
   if (!res.ok) throw new Error('data.json fetch failed: ' + res.status);
   DATA = await res.json();
-  console.log('[ADMIN] data.json loaded:', DATA);
 }
 
 async function saveData() {
-  console.log('[ADMIN] Saving data...', DATA);
   const res = await api('save-data.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(DATA)
   });
-  console.log('[ADMIN] Save response:', res);
   return res;
 }
 
