@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Royar Barber Shop — Local Development Server
+Coiffeur Royar — Local Development Server
 PHP backend yerine Python ile çalışır.
 Kullanım: python server.py
 """
@@ -367,7 +367,7 @@ if __name__ == '__main__':
     os.makedirs(UPLOADS_DIR, exist_ok=True)
     print(f"""
 ========================================
-  ROYAR BARBER SHOP — Dev Server
+  COIFFEUR ROYAR — Dev Server
 
   Ana Site:  http://localhost:{PORT}
   Admin:     http://localhost:{PORT}/admin.html

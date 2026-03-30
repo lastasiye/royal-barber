@@ -13,50 +13,54 @@
   ],
   "services": [
     {
-      "id": 1,
+      "id": 1774872797943,
       "name": "Haare",
-      "price": 25
+      "price": 25,
+      "popular": false
     },
     {
-      "id": 2,
+      "id": 1774872797944,
       "name": "Haare & Bart",
       "price": 40,
       "popular": true
     },
     {
-      "id": 3,
+      "id": 1774872797945,
       "name": "Kinder",
-      "price": 20
+      "price": 20,
+      "popular": false
     },
     {
-      "id": 4,
+      "id": 1774872797946,
       "name": "Augenbrauen",
-      "price": 10
+      "price": 10,
+      "popular": false
     },
     {
-      "id": 5,
+      "id": 1774872797947,
       "name": "Haare waschen",
-      "price": 10
+      "price": 10,
+      "popular": false
     }
   ],
   "products": [
     {
-      "id": 1,
+      "id": 1774872797943,
       "name": "Styling Gel (Dose)",
       "price": 10
     },
     {
-      "id": 2,
+      "id": 1774872797944,
       "name": "Wachs (Dose)",
       "price": 10
     },
     {
-      "id": 3,
+      "id": 1774872797945,
       "name": "Pomade (Dose)",
       "price": 10
     },
     {
-      "id": 4,
+      "id": 1774872797946,
       "name": "Pulver (Dose)",
       "price": 10
     }
@@ -82,7 +86,7 @@
     "phone": "0565552660",
     "phone_display": "056 555 26 60",
     "address": "Dynamostrasse 1, 5400 Baden, Schweiz",
-    "email": "info@royarbarbershop.ch",
+    "email": "info@coiffeurroyar.ch",
     "maps_url": "https://maps.google.com/maps/place//data=!4m2!3m1!1s0x47906cc76164c001:0x74dcf6cd26779edf"
   }
 }

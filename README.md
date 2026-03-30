@@ -1,4 +1,4 @@
-# Royar Barber Shop — Premium Herrenfriseur Baden
+# Coiffeur Royar — Premium Herrenfriseur Baden
 
 ## Proje Durumu
 İsviçre'deki premium bir erkek berber dükkanı için web sitesi.
