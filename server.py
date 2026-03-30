@@ -285,8 +285,15 @@ class RoyarHandler(http.server.SimpleHTTPRequestHandler):
             self.send_json({'success': False, 'error': 'Nur JPG/PNG/WebP'}, 400)
             return
         # Gerçek MIME type kontrolü (magic bytes)
-        import imghdr
-        img_type = imghdr.what(None, h=f['data'][:32])
+        header = f['data'][:32]
+        if header[:8] == b'\x89PNG\r\n\x1a\n':
+            img_type = 'png'
+        elif header[:3] == b'\xff\xd8\xff':
+            img_type = 'jpeg'
+        elif header[:4] == b'RIFF' and header[8:12] == b'WEBP':
+            img_type = 'webp'
+        else:
+            img_type = None
         allowed_types = {'jpeg', 'png', 'webp'}
         if img_type not in allowed_types:
             self.send_json({'success': False, 'error': f'Ungültiger Bildtyp: {img_type}'}, 400)
