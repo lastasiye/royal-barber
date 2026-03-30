@@ -68,11 +68,13 @@ function showToast(msg) {
 
 /* ═══ AUTH ═══ */
 document.getElementById('loginBtn').addEventListener('click', doLogin);
+document.getElementById('loginUser').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
 async function doLogin() {
   const u = document.getElementById('loginUser').value.trim();
   const p = document.getElementById('loginPass').value;
+  if (!u || !p) return;
   try {
     const res = await api('login.php', {
       method: 'POST',
@@ -81,6 +83,7 @@ async function doLogin() {
     });
     CSRF_TOKEN = res.data.csrf_token;
     sessionStorage.setItem('csrf_token', CSRF_TOKEN);
+    document.getElementById('loginError').style.display = 'none';
     showAdmin();
   } catch (_e) {
     document.getElementById('loginError').style.display = 'block';
@@ -141,6 +144,7 @@ uploadZone.addEventListener('drop', e => {
 fileInput.addEventListener('change', () => handleFiles(fileInput.files));
 
 async function handleFiles(files) {
+  let uploaded = 0;
   for (const file of files) {
     if (!file.type.startsWith('image/')) continue;
     const formData = new FormData();
@@ -148,16 +152,33 @@ async function handleFiles(files) {
     try {
       const res = await api('upload-image.php', { method: 'POST', body: formData });
       DATA.gallery.push({ id: res.filename, src: 'uploads/' + res.filename, alt: file.name.replace(/\.[^.]+$/, '') });
+      uploaded++;
     } catch (err) {
       showToast('Upload fehlgeschlagen: ' + err.message);
     }
   }
   renderGallery();
   fileInput.value = '';
+  // Otomatik kaydet
+  if (uploaded > 0) {
+    try {
+      await saveData();
+      showToast(uploaded + ' Foto hochgeladen und gespeichert!');
+    } catch (err) {
+      showToast('Upload OK, aber Speichern fehlgeschlagen: ' + err.message);
+    }
+  }
 }
 
 function renderGallery() {
   galGrid.innerHTML = '';
+  if (!DATA.gallery || DATA.gallery.length === 0) {
+    const empty = document.createElement('p');
+    empty.style.cssText = 'color:#9A9A9A;text-align:center;padding:32px;grid-column:1/-1';
+    empty.textContent = 'Noch keine Fotos. Laden Sie Bilder hoch.';
+    galGrid.appendChild(empty);
+    return;
+  }
   DATA.gallery.forEach((item, idx) => {
     const div = document.createElement('div');
     div.className = 'gal-admin-item';
@@ -182,6 +203,8 @@ function renderGallery() {
         });
         DATA.gallery.splice(idx, 1);
         renderGallery();
+        // Otomatik kaydet
+        await saveData();
         showToast('Foto gelöscht!');
       } catch (err) {
         showToast('Fehler: ' + err.message);
@@ -217,6 +240,23 @@ document.getElementById('saveGallery').addEventListener('click', async () => {
 });
 
 /* ═══ SERVICES ═══ */
+function collectServices() {
+  const rows = document.querySelectorAll('#servicesTable tbody tr');
+  DATA.services = [];
+  rows.forEach((tr, idx) => {
+    const nameVal = tr.querySelector('input[data-field="name"]').value;
+    const priceVal = parseFloat(tr.querySelector('input[data-field="price"]').value) || 0;
+    const popVal = tr.querySelector('.popular-check').checked;
+    const existing = DATA.services[idx] || {};
+    DATA.services.push({
+      id: existing.id || Date.now() + idx,
+      name: nameVal,
+      price: priceVal,
+      popular: popVal
+    });
+  });
+}
+
 function renderServices() {
   const tbody = document.querySelector('#servicesTable tbody');
   tbody.innerHTML = '';
@@ -225,6 +265,7 @@ function renderServices() {
     const td1 = document.createElement('td');
     const nameInput = document.createElement('input');
     nameInput.type = 'text'; nameInput.value = svc.name; nameInput.dataset.field = 'name'; nameInput.maxLength = 200;
+    nameInput.placeholder = 'Dienstleistung...';
     td1.appendChild(nameInput);
     const td2 = document.createElement('td');
     const priceInput = document.createElement('input');
@@ -240,15 +281,16 @@ function renderServices() {
     delRowBtn.className = 'del-row'; delRowBtn.title = 'Löschen'; delRowBtn.textContent = '\u00D7';
     td4.appendChild(delRowBtn);
     tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3); tr.appendChild(td4);
+    // input event: anlik guncelleme
     [nameInput, priceInput].forEach(input => {
-      input.addEventListener('change', () => {
+      input.addEventListener('input', () => {
         const field = input.dataset.field;
-        DATA.services[idx][field] = field === 'price' ? parseFloat(input.value) : input.value;
+        DATA.services[idx][field] = field === 'price' ? (parseFloat(input.value) || 0) : input.value;
       });
     });
-    popCheck.addEventListener('change', e => {
+    popCheck.addEventListener('change', () => {
       DATA.services.forEach(s => s.popular = false);
-      if (e.target.checked) DATA.services[idx].popular = true;
+      if (popCheck.checked) DATA.services[idx].popular = true;
       renderServices();
     });
     delRowBtn.addEventListener('click', async () => {
@@ -263,9 +305,27 @@ function renderServices() {
 document.getElementById('addService').addEventListener('click', () => {
   DATA.services.push({ id: Date.now(), name: '', price: 0 });
   renderServices();
+  // Yeni eklenen satira focus
+  const lastInput = document.querySelector('#servicesTable tbody tr:last-child input[data-field="name"]');
+  if (lastInput) lastInput.focus();
 });
 
 /* ═══ PRODUCTS ═══ */
+function collectProducts() {
+  const rows = document.querySelectorAll('#productsTable tbody tr');
+  DATA.products = [];
+  rows.forEach((tr, idx) => {
+    const nameVal = tr.querySelector('input[data-field="name"]').value;
+    const priceVal = parseFloat(tr.querySelector('input[data-field="price"]').value) || 0;
+    const existing = DATA.products[idx] || {};
+    DATA.products.push({
+      id: existing.id || Date.now() + idx,
+      name: nameVal,
+      price: priceVal
+    });
+  });
+}
+
 function renderProducts() {
   const tbody = document.querySelector('#productsTable tbody');
   tbody.innerHTML = '';
@@ -274,6 +334,7 @@ function renderProducts() {
     const td1 = document.createElement('td');
     const nameInput = document.createElement('input');
     nameInput.type = 'text'; nameInput.value = prod.name; nameInput.dataset.field = 'name'; nameInput.maxLength = 200;
+    nameInput.placeholder = 'Produkt...';
     td1.appendChild(nameInput);
     const td2 = document.createElement('td');
     const priceInput = document.createElement('input');
@@ -284,10 +345,11 @@ function renderProducts() {
     delRowBtn.className = 'del-row'; delRowBtn.title = 'Löschen'; delRowBtn.textContent = '\u00D7';
     td3.appendChild(delRowBtn);
     tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
+    // input event: anlik guncelleme
     [nameInput, priceInput].forEach(input => {
-      input.addEventListener('change', () => {
+      input.addEventListener('input', () => {
         const field = input.dataset.field;
-        DATA.products[idx][field] = field === 'price' ? parseFloat(input.value) : input.value;
+        DATA.products[idx][field] = field === 'price' ? (parseFloat(input.value) || 0) : input.value;
       });
     });
     delRowBtn.addEventListener('click', async () => {
@@ -302,9 +364,14 @@ function renderProducts() {
 document.getElementById('addProduct').addEventListener('click', () => {
   DATA.products.push({ id: Date.now(), name: '', price: 0 });
   renderProducts();
+  const lastInput = document.querySelector('#productsTable tbody tr:last-child input[data-field="name"]');
+  if (lastInput) lastInput.focus();
 });
 
 document.getElementById('savePrices').addEventListener('click', async () => {
+  // Kaydetmeden once DOM'dan son degerleri topla
+  collectServices();
+  collectProducts();
   try {
     await saveData();
     showToast('Preisliste gespeichert!');
@@ -412,7 +479,6 @@ document.getElementById('savePassword').addEventListener('click', async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ old_password: current, new_password: newPw })
     });
-    // Yeni CSRF token varsa güncelle
     if (pwRes.data && pwRes.data.csrf_token) {
       CSRF_TOKEN = pwRes.data.csrf_token;
       sessionStorage.setItem('csrf_token', CSRF_TOKEN);
