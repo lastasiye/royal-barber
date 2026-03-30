@@ -150,11 +150,12 @@ document.getElementById('cookieSettings').addEventListener('click',()=>{document
     D.services.forEach(s=>{
       const li=document.createElement('li');
       if(s.popular)li.className='price-popular';
-      li.innerHTML='<span class="price-icon" aria-hidden="true">&#9986;</span>'+
-        '<span>'+s.name+'</span>'+
-        (s.popular?'<span class="price-badge">'+(t.svc_popular||'BELIEBT')+'</span>':'')+
-        '<span class="price-dots"></span>'+
-        '<span class="price-val">CHF '+s.price+'.–</span>';
+      const icon=document.createElement('span');icon.className='price-icon';icon.setAttribute('aria-hidden','true');icon.textContent='✂';
+      const name=document.createElement('span');name.textContent=s.name;
+      li.appendChild(icon);li.appendChild(name);
+      if(s.popular){const badge=document.createElement('span');badge.className='price-badge';badge.textContent=t.svc_popular||'BELIEBT';li.appendChild(badge);}
+      const dots=document.createElement('span');dots.className='price-dots';li.appendChild(dots);
+      const val=document.createElement('span');val.className='price-val';val.textContent='CHF '+s.price+'.–';li.appendChild(val);
       svcEl.appendChild(li);
     });
   }
@@ -167,10 +168,11 @@ document.getElementById('cookieSettings').addEventListener('click',()=>{document
     prodEl.innerHTML='';
     D.products.forEach(p=>{
       const li=document.createElement('li');
-      li.innerHTML='<span class="price-icon" aria-hidden="true">&#9670;</span>'+
-        '<span>'+p.name+'</span>'+
-        '<span class="price-dots"></span>'+
-        '<span class="price-val">CHF '+p.price+'.–</span>';
+      const icon=document.createElement('span');icon.className='price-icon';icon.setAttribute('aria-hidden','true');icon.textContent='◆';
+      const name=document.createElement('span');name.textContent=p.name;
+      const dots=document.createElement('span');dots.className='price-dots';
+      const val=document.createElement('span');val.className='price-val';val.textContent='CHF '+p.price+'.–';
+      li.appendChild(icon);li.appendChild(name);li.appendChild(dots);li.appendChild(val);
       prodEl.appendChild(li);
     });
   }

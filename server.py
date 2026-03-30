@@ -19,6 +19,9 @@ PW_FILE = os.path.join(BASE_DIR, 'password.json')
 UPLOADS_DIR = os.path.join(BASE_DIR, 'uploads')
 
 sessions = {}
+login_attempts = {}  # IP -> [timestamp, ...]
+RATE_LIMIT_MAX = 5
+RATE_LIMIT_WINDOW = 900  # 15 Minuten
 
 def read_json(path):
     with open(path, 'r', encoding='utf-8') as f:
@@ -83,6 +86,16 @@ class RoyarHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Expires', '0')
         super().end_headers()
 
+    def do_GET(self):
+        path = urlparse(self.path).path
+        # Hassas dosyalara erişimi engelle
+        blocked = ['password.json', 'config.php', 'rate_limit.json', '.htaccess']
+        basename = os.path.basename(path)
+        if basename in blocked:
+            self.send_error(403, 'Forbidden')
+            return
+        super().do_GET()
+
     def do_POST(self):
         path = urlparse(self.path).path
         routes = {
@@ -91,6 +104,7 @@ class RoyarHandler(http.server.SimpleHTTPRequestHandler):
             '/api/upload-image.php': self.handle_upload_image,
             '/api/delete-image.php': self.handle_delete_image,
             '/api/change-password.php': self.handle_change_password,
+            '/api/logout.php': self.handle_logout,
         }
         handler = routes.get(path)
         if handler:
@@ -129,7 +143,23 @@ class RoyarHandler(http.server.SimpleHTTPRequestHandler):
             return False
         return True
 
+    def check_rate_limit(self):
+        ip = self.client_address[0]
+        import time
+        now = time.time()
+        if ip in login_attempts:
+            login_attempts[ip] = [t for t in login_attempts[ip] if now - t < RATE_LIMIT_WINDOW]
+        else:
+            login_attempts[ip] = []
+        if len(login_attempts[ip]) >= RATE_LIMIT_MAX:
+            remaining = int(RATE_LIMIT_WINDOW - (now - login_attempts[ip][0]))
+            self.send_json({'success': False, 'error': f'Zu viele Versuche. Bitte warten Sie {remaining} Sekunden.'}, 429)
+            return False
+        return True
+
     def handle_login(self):
+        if not self.check_rate_limit():
+            return
         body = self.read_json_body()
         username = body.get('username', '')
         password = body.get('password', '')
@@ -143,7 +173,19 @@ class RoyarHandler(http.server.SimpleHTTPRequestHandler):
             print(f"[LOGIN] {username} OK")
             self.send_json({'success': True, 'data': {'message': 'OK', 'csrf_token': token}})
         else:
+            import time
+            ip = self.client_address[0]
+            if ip not in login_attempts:
+                login_attempts[ip] = []
+            login_attempts[ip].append(time.time())
             self.send_json({'success': False, 'error': 'Falscher Login'}, 401)
+
+    def handle_logout(self):
+        token = self.headers.get('X-CSRF-Token', '')
+        if token in sessions:
+            del sessions[token]
+            print(f"[LOGOUT] Session destroyed")
+        self.send_json({'success': True, 'data': {'message': 'Abgemeldet'}})
 
     def handle_save_data(self):
         if not self.require_auth():
@@ -184,6 +226,18 @@ class RoyarHandler(http.server.SimpleHTTPRequestHandler):
         ext = os.path.splitext(f['filename'])[1].lower()
         if ext not in ['.jpg', '.jpeg', '.png', '.webp']:
             self.send_json({'success': False, 'error': 'Nur JPG/PNG/WebP'}, 400)
+            return
+        # Gerçek MIME type kontrolü (magic bytes)
+        import imghdr
+        img_type = imghdr.what(None, h=f['data'][:32])
+        allowed_types = {'jpeg', 'png', 'webp'}
+        if img_type not in allowed_types:
+            self.send_json({'success': False, 'error': f'Ungültiger Bildtyp: {img_type}'}, 400)
+            return
+        # Path traversal koruması - dosya adında sadece güvenli karakterler
+        safe_name = os.path.basename(f['filename'])
+        if '..' in safe_name or '/' in safe_name or '\\' in safe_name:
+            self.send_json({'success': False, 'error': 'Ungültiger Dateiname'}, 400)
             return
         new_name = f"img_{uuid.uuid4().hex[:8]}{ext}"
         os.makedirs(UPLOADS_DIR, exist_ok=True)

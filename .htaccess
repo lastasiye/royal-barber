@@ -1,17 +1,25 @@
-# PHP-Ausführung in uploads/ verhindern
-<Directory "uploads">
-    <FilesMatch "\.php$">
-        Require all denied
-    </FilesMatch>
-    php_flag engine off
-</Directory>
-
-# Zugriff auf config.php und password.json blockieren
-<FilesMatch "(config\.php|password\.json)$">
+# Zugriff auf sensible Dateien blockieren
+<FilesMatch "(config\.php|password\.json|rate_limit\.json|\.htaccess)$">
     Require all denied
 </FilesMatch>
 
-# .htaccess-Datei schützen
-<Files ".htaccess">
-    Require all denied
+# data.json nur GET erlauben (kein direkter POST)
+<Files "data.json">
+    <LimitExcept GET>
+        Require all denied
+    </LimitExcept>
 </Files>
+
+# Sicherheits-Header
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "DENY"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# PHP-Ausführung in uploads/ verhindern (RewriteRule statt Directory)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^uploads/.*\.php$ - [F,L]
+</IfModule>

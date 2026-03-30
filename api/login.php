@@ -17,6 +17,9 @@ if (empty($username) || empty($password)) {
     exit;
 }
 
+// Rate Limiting: 5 Versuche pro 15 Minuten
+checkRateLimit('login', 5, 900);
+
 $data = getPasswordData();
 if (!$data) {
     http_response_code(500);
@@ -25,6 +28,8 @@ if (!$data) {
 }
 
 if ($username === $data['username'] && password_verify($password, $data['password_hash'])) {
+    // Erfolgreiche Anmeldung: Session erneuern
+    session_regenerate_id(true);
     $_SESSION['authenticated'] = true;
     $_SESSION['username'] = $username;
 
@@ -36,6 +41,8 @@ if ($username === $data['username'] && password_verify($password, $data['passwor
         ]
     ]);
 } else {
+    // Fehlgeschlagene Anmeldung aufzeichnen
+    recordRateLimit('login');
     http_response_code(401);
     echo json_encode(['success' => false, 'error' => 'Ungültiger Benutzername oder Passwort']);
 }

@@ -38,10 +38,26 @@ function confirmAction(msg) {
   return new Promise(resolve => {
     const overlay = document.createElement('div');
     overlay.className = 'confirm-overlay';
-    overlay.innerHTML = '<div class="confirm-box"><p>' + msg + '</p><div class="confirm-actions"><button class="confirm-yes">Ja, löschen</button><button class="confirm-no">Abbrechen</button></div></div>';
+    const box = document.createElement('div');
+    box.className = 'confirm-box';
+    const p = document.createElement('p');
+    p.textContent = msg;
+    const actions = document.createElement('div');
+    actions.className = 'confirm-actions';
+    const yesBtn = document.createElement('button');
+    yesBtn.className = 'confirm-yes';
+    yesBtn.textContent = 'Ja, löschen';
+    const noBtn = document.createElement('button');
+    noBtn.className = 'confirm-no';
+    noBtn.textContent = 'Abbrechen';
+    actions.appendChild(yesBtn);
+    actions.appendChild(noBtn);
+    box.appendChild(p);
+    box.appendChild(actions);
+    overlay.appendChild(box);
     document.body.appendChild(overlay);
-    overlay.querySelector('.confirm-yes').addEventListener('click', () => { overlay.remove(); resolve(true); });
-    overlay.querySelector('.confirm-no').addEventListener('click', () => { overlay.remove(); resolve(false); });
+    yesBtn.addEventListener('click', () => { overlay.remove(); resolve(true); });
+    noBtn.addEventListener('click', () => { overlay.remove(); resolve(false); });
     overlay.addEventListener('click', e => { if (e.target === overlay) { overlay.remove(); resolve(false); } });
   });
 }
@@ -74,7 +90,8 @@ async function doLogin() {
   }
 }
 
-document.getElementById('logoutBtn').addEventListener('click', () => {
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  try { await api('logout.php', { method: 'POST' }); } catch {}
   CSRF_TOKEN = '';
   sessionStorage.removeItem('csrf_token');
   document.getElementById('adminWrap').style.display = 'none';
@@ -149,8 +166,16 @@ function renderGallery() {
     div.className = 'gal-admin-item';
     div.draggable = true;
     div.dataset.idx = idx;
-    div.innerHTML = '<img src="' + item.src + '" alt="' + (item.alt || '') + '"><button class="del-btn" title="Löschen">&times;</button>';
-    div.querySelector('.del-btn').addEventListener('click', async () => {
+    const img = document.createElement('img');
+    img.src = item.src;
+    img.alt = item.alt || '';
+    const delBtn = document.createElement('button');
+    delBtn.className = 'del-btn';
+    delBtn.title = 'Löschen';
+    delBtn.textContent = '\u00D7';
+    div.appendChild(img);
+    div.appendChild(delBtn);
+    delBtn.addEventListener('click', async () => {
       if (!await confirmAction('Dieses Foto wirklich löschen?')) return;
       try {
         await api('delete-image.php', {
@@ -200,22 +225,36 @@ function renderServices() {
   tbody.innerHTML = '';
   DATA.services.forEach((svc, idx) => {
     const tr = document.createElement('tr');
-    tr.innerHTML = '<td><input type="text" value="' + svc.name + '" data-field="name"></td>' +
-      '<td><input type="number" class="price-input" value="' + svc.price + '" min="0" data-field="price"></td>' +
-      '<td style="text-align:center"><input type="checkbox" class="popular-check"' + (svc.popular ? ' checked' : '') + '></td>' +
-      '<td><button class="del-row" title="Löschen">&times;</button></td>';
-    tr.querySelectorAll('input[data-field]').forEach(input => {
+    const td1 = document.createElement('td');
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text'; nameInput.value = svc.name; nameInput.dataset.field = 'name';
+    td1.appendChild(nameInput);
+    const td2 = document.createElement('td');
+    const priceInput = document.createElement('input');
+    priceInput.type = 'number'; priceInput.className = 'price-input'; priceInput.value = svc.price; priceInput.min = '0'; priceInput.dataset.field = 'price';
+    td2.appendChild(priceInput);
+    const td3 = document.createElement('td');
+    td3.style.textAlign = 'center';
+    const popCheck = document.createElement('input');
+    popCheck.type = 'checkbox'; popCheck.className = 'popular-check'; popCheck.checked = !!svc.popular;
+    td3.appendChild(popCheck);
+    const td4 = document.createElement('td');
+    const delRowBtn = document.createElement('button');
+    delRowBtn.className = 'del-row'; delRowBtn.title = 'Löschen'; delRowBtn.textContent = '\u00D7';
+    td4.appendChild(delRowBtn);
+    tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3); tr.appendChild(td4);
+    [nameInput, priceInput].forEach(input => {
       input.addEventListener('change', () => {
         const field = input.dataset.field;
         DATA.services[idx][field] = field === 'price' ? parseFloat(input.value) : input.value;
       });
     });
-    tr.querySelector('.popular-check').addEventListener('change', e => {
+    popCheck.addEventListener('change', e => {
       DATA.services.forEach(s => s.popular = false);
       if (e.target.checked) DATA.services[idx].popular = true;
       renderServices();
     });
-    tr.querySelector('.del-row').addEventListener('click', async () => {
+    delRowBtn.addEventListener('click', async () => {
       if (!await confirmAction('Diese Dienstleistung wirklich löschen?')) return;
       DATA.services.splice(idx, 1);
       renderServices();
@@ -235,16 +274,26 @@ function renderProducts() {
   tbody.innerHTML = '';
   DATA.products.forEach((prod, idx) => {
     const tr = document.createElement('tr');
-    tr.innerHTML = '<td><input type="text" value="' + prod.name + '" data-field="name"></td>' +
-      '<td><input type="number" class="price-input" value="' + prod.price + '" min="0" data-field="price"></td>' +
-      '<td><button class="del-row" title="Löschen">&times;</button></td>';
-    tr.querySelectorAll('input[data-field]').forEach(input => {
+    const td1 = document.createElement('td');
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text'; nameInput.value = prod.name; nameInput.dataset.field = 'name';
+    td1.appendChild(nameInput);
+    const td2 = document.createElement('td');
+    const priceInput = document.createElement('input');
+    priceInput.type = 'number'; priceInput.className = 'price-input'; priceInput.value = prod.price; priceInput.min = '0'; priceInput.dataset.field = 'price';
+    td2.appendChild(priceInput);
+    const td3 = document.createElement('td');
+    const delRowBtn = document.createElement('button');
+    delRowBtn.className = 'del-row'; delRowBtn.title = 'Löschen'; delRowBtn.textContent = '\u00D7';
+    td3.appendChild(delRowBtn);
+    tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
+    [nameInput, priceInput].forEach(input => {
       input.addEventListener('change', () => {
         const field = input.dataset.field;
         DATA.products[idx][field] = field === 'price' ? parseFloat(input.value) : input.value;
       });
     });
-    tr.querySelector('.del-row').addEventListener('click', async () => {
+    delRowBtn.addEventListener('click', async () => {
       if (!await confirmAction('Dieses Produkt wirklich löschen?')) return;
       DATA.products.splice(idx, 1);
       renderProducts();
