@@ -27,11 +27,14 @@ if (!$data) {
     exit;
 }
 
-if ($username === $data['username'] && password_verify($password, $data['password_hash'])) {
+if (strtolower($username) === strtolower($data['username']) && password_verify($password, $data['password_hash'])) {
     // Erfolgreiche Anmeldung: Session erneuern
     session_regenerate_id(true);
     $_SESSION['authenticated'] = true;
-    $_SESSION['username'] = $username;
+    $_SESSION['username'] = $data['username'];
+    $_SESSION['bound_ip'] = $_SERVER['REMOTE_ADDR'] ?? '';
+    $_SESSION['bound_ua'] = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    $_SESSION['last_activity'] = time();
 
     echo json_encode([
         'success' => true,

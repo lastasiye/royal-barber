@@ -227,11 +227,11 @@ function renderServices() {
     const tr = document.createElement('tr');
     const td1 = document.createElement('td');
     const nameInput = document.createElement('input');
-    nameInput.type = 'text'; nameInput.value = svc.name; nameInput.dataset.field = 'name';
+    nameInput.type = 'text'; nameInput.value = svc.name; nameInput.dataset.field = 'name'; nameInput.maxLength = 200;
     td1.appendChild(nameInput);
     const td2 = document.createElement('td');
     const priceInput = document.createElement('input');
-    priceInput.type = 'number'; priceInput.className = 'price-input'; priceInput.value = svc.price; priceInput.min = '0'; priceInput.dataset.field = 'price';
+    priceInput.type = 'number'; priceInput.className = 'price-input'; priceInput.value = svc.price; priceInput.min = '0'; priceInput.max = '99999'; priceInput.dataset.field = 'price';
     td2.appendChild(priceInput);
     const td3 = document.createElement('td');
     td3.style.textAlign = 'center';
@@ -276,11 +276,11 @@ function renderProducts() {
     const tr = document.createElement('tr');
     const td1 = document.createElement('td');
     const nameInput = document.createElement('input');
-    nameInput.type = 'text'; nameInput.value = prod.name; nameInput.dataset.field = 'name';
+    nameInput.type = 'text'; nameInput.value = prod.name; nameInput.dataset.field = 'name'; nameInput.maxLength = 200;
     td1.appendChild(nameInput);
     const td2 = document.createElement('td');
     const priceInput = document.createElement('input');
-    priceInput.type = 'number'; priceInput.className = 'price-input'; priceInput.value = prod.price; priceInput.min = '0'; priceInput.dataset.field = 'price';
+    priceInput.type = 'number'; priceInput.className = 'price-input'; priceInput.value = prod.price; priceInput.min = '0'; priceInput.max = '99999'; priceInput.dataset.field = 'price';
     td2.appendChild(priceInput);
     const td3 = document.createElement('td');
     const delRowBtn = document.createElement('button');
@@ -410,11 +410,16 @@ document.getElementById('savePassword').addEventListener('click', async () => {
   }
 
   try {
-    await api('change-password.php', {
+    const pwRes = await api('change-password.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ old_password: current, new_password: newPw })
     });
+    // Yeni CSRF token varsa güncelle
+    if (pwRes.data && pwRes.data.csrf_token) {
+      CSRF_TOKEN = pwRes.data.csrf_token;
+      sessionStorage.setItem('csrf_token', CSRF_TOKEN);
+    }
     document.getElementById('pwCurrent').value = '';
     document.getElementById('pwNew').value = '';
     document.getElementById('pwConfirm').value = '';

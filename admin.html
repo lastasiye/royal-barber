@@ -49,7 +49,7 @@
 <h2>Galerie verwalten</h2>
 <div class="upload-zone" id="uploadZone">
 <p>Fotos hierher ziehen oder <span>Dateien auswählen</span></p>
-<input type="file" id="fileInput" accept="image/*" multiple>
+<input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" multiple>
 </div>
 <div class="gal-admin-grid" id="galGrid"></div>
 <button class="btn-save" id="saveGallery">Galerie Speichern</button>
@@ -121,23 +121,23 @@
 <h2>Kontaktdaten</h2>
 <div class="form-group">
 <label>Telefon (Anzeige)</label>
-<input type="text" id="cPhone" placeholder="056 555 26 60">
+<input type="text" id="cPhone" placeholder="056 555 26 60" maxlength="30" pattern="[0-9\s\+\-()]+">
 </div>
 <div class="form-group">
 <label>Telefon (tel: Link)</label>
-<input type="text" id="cPhoneTel" placeholder="0565552660">
+<input type="text" id="cPhoneTel" placeholder="0565552660" maxlength="20" pattern="[0-9\+]+">
 </div>
 <div class="form-group">
 <label>E-Mail</label>
-<input type="email" id="cEmail" placeholder="info@royarbarbershop.ch">
+<input type="email" id="cEmail" placeholder="info@royarbarbershop.ch" maxlength="200">
 </div>
 <div class="form-group">
 <label>Adresse</label>
-<input type="text" id="cAddress" placeholder="Dynamostrasse 1, 5400 Baden, Schweiz">
+<input type="text" id="cAddress" placeholder="Dynamostrasse 1, 5400 Baden, Schweiz" maxlength="300">
 </div>
 <div class="form-group">
 <label>Google Maps URL</label>
-<input type="url" id="cMaps" placeholder="https://maps.google.com/...">
+<input type="url" id="cMaps" placeholder="https://maps.google.com/..." maxlength="500">
 </div>
 <button class="btn-save" id="saveContact">Kontakt Speichern</button>
 </div>

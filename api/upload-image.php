@@ -46,7 +46,15 @@ $finfo = new finfo(FILEINFO_MIME_TYPE);
 $realMime = $finfo->file($file['tmp_name']);
 if (!in_array($realMime, $allowedMimes, true)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Ungültiger Dateityp (MIME: ' . $realMime . ')']);
+    echo json_encode(['success' => false, 'error' => 'Ungültiger Dateityp']);
+    exit;
+}
+
+// getimagesize() ile gerçek resim doğrulaması
+$imgInfo = @getimagesize($file['tmp_name']);
+if ($imgInfo === false) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Datei ist kein gültiges Bild']);
     exit;
 }
 

@@ -1,7 +1,13 @@
+# Directory listing deaktivieren
+Options -Indexes
+
 # Zugriff auf sensible Dateien blockieren
-<FilesMatch "(config\.php|password\.json|rate_limit\.json|\.htaccess)$">
+<FilesMatch "(config\.php|password\.json|rate_limit\.json|\.htaccess|\.bak)$">
     Require all denied
 </FilesMatch>
+
+# .git Ordner blockieren
+RedirectMatch 404 /\.git
 
 # data.json nur GET erlauben (kein direkter POST)
 <Files "data.json">
@@ -16,10 +22,13 @@
     Header set X-Frame-Options "DENY"
     Header set X-XSS-Protection "1; mode=block"
     Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; frame-src https://www.google.com; connect-src 'self'"
+    Header set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
+    Header set Permissions-Policy "camera=(), microphone=(), geolocation=()"
 </IfModule>
 
 # PHP-Ausführung in uploads/ verhindern (RewriteRule statt Directory)
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteRule ^uploads/.*\.php$ - [F,L]
+    RewriteRule ^uploads/.*\.ph(p[345s]?|tml)$ - [F,L]
 </IfModule>

@@ -24,10 +24,35 @@ $data = json_decode(file_get_contents($dataFile), true);
 $found = false;
 foreach ($data['gallery'] as $idx => $item) {
     if ((string)$item['id'] === (string)$id) {
-        $filePath = __DIR__ . '/../' . $item['src'];
-        if (file_exists($filePath)) {
-            unlink($filePath);
+        $src = $item['src'] ?? '';
+
+        // Path traversal koruması: sadece uploads/ klasöründen silmeye izin ver
+        if (strpos($src, 'uploads/') !== 0) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Ungültiger Dateipfad']);
+            exit;
         }
+
+        // ../ kontrolü
+        if (strpos($src, '..') !== false) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Ungültiger Dateipfad']);
+            exit;
+        }
+
+        // basename() ile dosya adını temizle
+        $filename = basename($src);
+        $uploadsDir = realpath(__DIR__ . '/../uploads');
+        $filePath = $uploadsDir . DIRECTORY_SEPARATOR . $filename;
+
+        // realpath kontrolü: dosya gerçekten uploads/ içinde mi?
+        if (file_exists($filePath)) {
+            $realFile = realpath($filePath);
+            if ($realFile && strpos($realFile, $uploadsDir) === 0) {
+                unlink($realFile);
+            }
+        }
+
         array_splice($data['gallery'], $idx, 1);
         $found = true;
         break;

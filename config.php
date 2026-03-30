@@ -1,17 +1,52 @@
 <?php
+// Hata gösterimini kapat (güvenlik)
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+error_reporting(E_ALL);
+
 // Session güvenlik ayarları
 ini_set('session.cookie_httponly', 1);
 ini_set('session.cookie_samesite', 'Strict');
 ini_set('session.use_strict_mode', 1);
+ini_set('session.gc_maxlifetime', 1800); // 30 dakika
+ini_set('session.cookie_lifetime', 1800);
 if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
     ini_set('session.cookie_secure', 1);
 }
 session_start();
 
+// Session timeout kontrolü (30 dakika)
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 1800)) {
+    $_SESSION = [];
+    session_destroy();
+    session_start();
+}
+$_SESSION['last_activity'] = time();
+
+// Session IP binding (hijacking koruması)
+if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
+    $currentIp = $_SERVER['REMOTE_ADDR'] ?? '';
+    $currentUa = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    if (isset($_SESSION['bound_ip']) && $_SESSION['bound_ip'] !== $currentIp) {
+        $_SESSION = [];
+        session_destroy();
+        session_start();
+    }
+    if (isset($_SESSION['bound_ua']) && $_SESSION['bound_ua'] !== $currentUa) {
+        $_SESSION = [];
+        session_destroy();
+        session_start();
+    }
+}
+
 // CORS headers
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; frame-src https://www.google.com; connect-src 'self'");
+if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+}
 
 // CSRF-Token erstellen
 if (empty($_SESSION['csrf_token'])) {

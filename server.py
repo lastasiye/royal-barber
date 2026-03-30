@@ -18,10 +18,11 @@ DATA_FILE = os.path.join(BASE_DIR, 'data.json')
 PW_FILE = os.path.join(BASE_DIR, 'password.json')
 UPLOADS_DIR = os.path.join(BASE_DIR, 'uploads')
 
-sessions = {}
+sessions = {}  # token -> {authenticated, username, ip, ua, last_activity}
 login_attempts = {}  # IP -> [timestamp, ...]
 RATE_LIMIT_MAX = 5
 RATE_LIMIT_WINDOW = 900  # 15 Minuten
+SESSION_TIMEOUT = 1800  # 30 Minuten
 
 def read_json(path):
     with open(path, 'r', encoding='utf-8') as f:
@@ -91,7 +92,16 @@ class RoyarHandler(http.server.SimpleHTTPRequestHandler):
         # Hassas dosyalara erişimi engelle
         blocked = ['password.json', 'config.php', 'rate_limit.json', '.htaccess']
         basename = os.path.basename(path)
-        if basename in blocked:
+        if basename in blocked or basename.endswith('.bak'):
+            self.send_error(403, 'Forbidden')
+            return
+        # .git klasörü engelle
+        if '/.git' in path or path.startswith('.git'):
+            self.send_error(404, 'Not Found')
+            return
+        # Directory listing engelle (sadece dosyalara izin ver)
+        full_path = os.path.join(BASE_DIR, path.lstrip('/'))
+        if os.path.isdir(full_path) and path != '/' and not path.endswith('/index.html'):
             self.send_error(403, 'Forbidden')
             return
         super().do_GET()
@@ -136,11 +146,25 @@ class RoyarHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(body)
 
     def require_auth(self):
+        import time
         token = self.headers.get('X-CSRF-Token', '')
         session = sessions.get(token)
         if not session or not session.get('authenticated'):
             self.send_json({'success': False, 'error': 'Anmeldung erforderlich'}, 401)
             return False
+        # Session timeout kontrolü
+        if time.time() - session.get('last_activity', 0) > SESSION_TIMEOUT:
+            del sessions[token]
+            self.send_json({'success': False, 'error': 'Sitzung abgelaufen'}, 401)
+            return False
+        # IP binding kontrolü
+        client_ip = self.client_address[0]
+        client_ua = self.headers.get('User-Agent', '')
+        if session.get('ip') != client_ip or session.get('ua') != client_ua:
+            del sessions[token]
+            self.send_json({'success': False, 'error': 'Sitzung ungültig'}, 401)
+            return False
+        session['last_activity'] = time.time()
         return True
 
     def check_rate_limit(self):
@@ -167,9 +191,16 @@ class RoyarHandler(http.server.SimpleHTTPRequestHandler):
             self.send_json({'success': False, 'error': 'Felder fehlen'}, 400)
             return
         pw_data = read_json(PW_FILE)
-        if username == pw_data.get('username') and verify_password(password, pw_data.get('password_hash', '')):
+        if username.lower() == pw_data.get('username', '').lower() and verify_password(password, pw_data.get('password_hash', '')):
+            import time as _time
             token = secrets.token_hex(32)
-            sessions[token] = {'authenticated': True, 'username': username}
+            sessions[token] = {
+                'authenticated': True,
+                'username': username,
+                'ip': self.client_address[0],
+                'ua': self.headers.get('User-Agent', ''),
+                'last_activity': _time.time()
+            }
             print(f"[LOGIN] {username} OK")
             self.send_json({'success': True, 'data': {'message': 'OK', 'csrf_token': token}})
         else:
@@ -200,8 +231,34 @@ class RoyarHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_json({'success': False, 'error': f'Feld nicht erlaubt: {k}'}, 400)
                 return
         current = read_json(DATA_FILE)
+
+        # Input validation
         for k, v in body.items():
             current[k] = v
+
+        # Services/Products validation
+        for key in ['services', 'products']:
+            if key in current and isinstance(current[key], list):
+                for item in current[key]:
+                    if isinstance(item, dict):
+                        if 'name' in item and len(str(item['name'])) > 200:
+                            self.send_json({'success': False, 'error': f'Name zu lang (max 200 Zeichen)'}, 400)
+                            return
+                        if 'price' in item:
+                            try:
+                                price = float(item['price'])
+                                if price < 0 or price > 99999:
+                                    self.send_json({'success': False, 'error': 'Ungültiger Preis (0-99999)'}, 400)
+                                    return
+                            except (ValueError, TypeError):
+                                self.send_json({'success': False, 'error': 'Preis muss eine Zahl sein'}, 400)
+                                return
+
+        # Backup erstellen
+        import shutil
+        if os.path.exists(DATA_FILE):
+            shutil.copy2(DATA_FILE, DATA_FILE + '.bak')
+
         write_json(DATA_FILE, current)
         print(f"[SAVE] data.json updated: {list(body.keys())}")
         self.send_json({'success': True, 'data': {'message': 'Gespeichert'}})
@@ -289,6 +346,13 @@ class RoyarHandler(http.server.SimpleHTTPRequestHandler):
             return
         pw_data['password_hash'] = hash_password(new_pw)
         write_json(PW_FILE, pw_data)
+
+        # Tüm eski session'ları geçersiz kıl
+        current_token = self.headers.get('X-CSRF-Token', '')
+        tokens_to_remove = [t for t in sessions if t != current_token]
+        for t in tokens_to_remove:
+            del sessions[t]
+
         self.send_json({'success': True, 'data': {'message': 'OK'}})
 
     def log_message(self, fmt, *args):

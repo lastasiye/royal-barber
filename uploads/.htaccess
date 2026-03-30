@@ -1,6 +1,9 @@
+# Directory listing deaktivieren
+Options -Indexes
+
 # Bu klasörde PHP çalışmasını engelle
 php_flag engine off
 
-<FilesMatch "\.php$">
+<FilesMatch "\.ph(p[345s]?|tml)$">
     Require all denied
 </FilesMatch>

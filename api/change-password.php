@@ -36,4 +36,17 @@ $pwData['password_hash'] = password_hash($newPassword, PASSWORD_DEFAULT);
 $pwFile = __DIR__ . '/../password.json';
 file_put_contents($pwFile, json_encode($pwData, JSON_PRETTY_PRINT), LOCK_EX);
 
-echo json_encode(['success' => true, 'data' => ['message' => 'Passwort erfolgreich geändert']]);
+// Eski session'ları geçersiz kıl: yeni session oluştur
+session_regenerate_id(true);
+$_SESSION['authenticated'] = true;
+$_SESSION['username'] = $pwData['username'];
+$_SESSION['bound_ip'] = $_SERVER['REMOTE_ADDR'] ?? '';
+$_SESSION['bound_ua'] = $_SERVER['HTTP_USER_AGENT'] ?? '';
+$_SESSION['last_activity'] = time();
+// Yeni CSRF token oluştur
+$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
+echo json_encode(['success' => true, 'data' => [
+    'message' => 'Passwort erfolgreich geändert',
+    'csrf_token' => $_SESSION['csrf_token']
+]]);
