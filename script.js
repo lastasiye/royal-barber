@@ -6,9 +6,6 @@ fr:{nav_about:'À Propos',nav_services:'Services',nav_booking:'Rendez-vous',nav_
 };
 
 
-/* ═══ HONEYPOT CHECK ═══ */
-function isBot(form){const hp=form.querySelector('.hp-field input');return hp&&hp.value.length>0;}
-
 /* ═══ CORE ENGINE ═══ */
 let lang='de';
 const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
@@ -34,7 +31,7 @@ function showToast(title,msg){
 $('.toast-close').addEventListener('click',()=>{$('#toast').classList.remove('show');clearTimeout(toastTimer);});
 
 /* ═══ NAV ═══ */
-let lastScroll=0,ticking=false;
+let ticking=false;
 window.addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(()=>{$('#nav').classList.toggle('scrolled',window.scrollY>60);ticking=false;});ticking=true;}});
 
 /* ═══ SMOOTH SCROLL ═══ */
@@ -48,17 +45,6 @@ mob.addEventListener('click',e=>{if(e.target.tagName==='A')closeMob();});
 
 /* ═══ LANG BUTTONS ═══ */
 $$('.lang-btn').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.lang)));
-
-
-
-
-
-/* ═══ FORM VALIDATION ═══ */
-function validateField(el){
-  if(!el.checkValidity()){el.classList.add('form-error');return false;}
-  el.classList.remove('form-error');return true;
-}
-
 
 
 /* ═══ GALLERY FILTER ═══ */

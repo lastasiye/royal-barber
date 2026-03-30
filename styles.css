@@ -195,7 +195,6 @@ footer{padding:64px 0 32px;border-top:1px solid var(--border)}
 .reveal-d1{transition-delay:.1s}.reveal-d2{transition-delay:.2s}.reveal-d3{transition-delay:.3s}
 
 /* ═══ RESPONSIVE ═══ */
-/* ═══ RESPONSIVE ═══ */
 @media(max-width:1024px){
 .hero-ct,.loc-grid{grid-template-columns:1fr}
 .hero-vis{max-width:500px}
@@ -266,7 +265,7 @@ a[href^="tel:"]::after,a[href^="mailto:"]::after{content:" (" attr(href) ")";fon
 
 
 /* HONEYPOT */
-.hp-field{position:absolute;left:-9999px;opacity:0;height:0;width:0;overflow:hidden;pointer-events:none;tab-index:-1}
+.hp-field{position:absolute;left:-9999px;opacity:0;height:0;width:0;overflow:hidden;pointer-events:none}
 
 
 /* MOBILE FIXED CTA */

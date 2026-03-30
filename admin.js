@@ -82,13 +82,13 @@ async function doLogin() {
     CSRF_TOKEN = res.data.csrf_token;
     sessionStorage.setItem('csrf_token', CSRF_TOKEN);
     showAdmin();
-  } catch {
+  } catch (_e) {
     document.getElementById('loginError').style.display = 'block';
   }
 }
 
 document.getElementById('logoutBtn').addEventListener('click', async () => {
-  try { await api('logout.php', { method: 'POST' }); } catch {}
+  try { await api('logout.php', { method: 'POST' }); } catch (_e) { /* ignore */ }
   CSRF_TOKEN = '';
   sessionStorage.removeItem('csrf_token');
   document.getElementById('adminWrap').style.display = 'none';
@@ -196,7 +196,7 @@ function renderGallery() {
     div.addEventListener('dragover', e => e.preventDefault());
     div.addEventListener('drop', e => {
       e.preventDefault();
-      const from = parseInt(e.dataTransfer.getData('text/plain'));
+      const from = parseInt(e.dataTransfer.getData('text/plain'), 10);
       const to = idx;
       if (from === to) return;
       const moved = DATA.gallery.splice(from, 1)[0];
@@ -393,14 +393,14 @@ document.getElementById('savePassword').addEventListener('click', async () => {
 
   const current = document.getElementById('pwCurrent').value;
   const newPw = document.getElementById('pwNew').value;
-  const confirm = document.getElementById('pwConfirm').value;
+  const confirmPw = document.getElementById('pwConfirm').value;
 
   if (newPw.length < 6) {
     errEl.textContent = 'Neues Passwort muss mindestens 6 Zeichen haben.';
     errEl.style.display = 'block';
     return;
   }
-  if (newPw !== confirm) {
+  if (newPw !== confirmPw) {
     errEl.textContent = 'Passwörter stimmen nicht überein.';
     errEl.style.display = 'block';
     return;
