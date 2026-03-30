@@ -356,7 +356,7 @@ class RoyarHandler(http.server.SimpleHTTPRequestHandler):
         self.send_json({'success': True, 'data': {'message': 'OK'}})
 
     def log_message(self, fmt, *args):
-        msg = args[0] if args else ''
+        msg = str(args[0]) if args else ''
         if '/api/' in msg:
             print(f"[API] {msg}")
         elif '.map' not in msg and 'favicon' not in msg:
