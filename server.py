@@ -38,9 +38,9 @@ def verify_password(plain, hashed):
         import bcrypt
         return bcrypt.checkpw(plain.encode(), hashed.encode())
     except ImportError:
-        if plain == 'admin':
-            return True
-        return False
+        if hashed.startswith('$plain$'):
+            return plain == hashed[7:]
+        return plain == hashed
 
 def hash_password(plain):
     try:
